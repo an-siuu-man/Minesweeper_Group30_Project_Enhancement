@@ -9,8 +9,13 @@ class Game:
         self.timer = pygame.time.Clock()
 
         self.grid = self.gridGeneration()
-        
+
         self.isGameActive = True
+
+    def gridGeneration(self):
+        gridStructure = [[0 for i in range(10)] for i in range(10)]
+        return gridStructure
+    
 
 
 
