@@ -5,35 +5,59 @@ from assets import *
 
 class Game:
     def __init__(self):
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        pygame.display.set_caption(TITLE)
-        self.clock = pygame.time.Clock()
+        pygame.init()
 
-    def new(self):
+        self.layout = pygame.display.set_mode((COLUMNS * CELLSIZE, ROWS * CELLSIZE))
+
+        pygame.display.set_caption("Minesweeper")
+
+        self.timer = pygame.time.Clock()
+
+        self.isGameActive = True
+
         self.grid = Grid()
-        self.grid.display_board()
 
+    def empty_game_board_generation(self):
+        grid_Structure = [[0 for i in range(COLUMNS)] for i in range(ROWS)]
+        return grid_Structure
+    
+    def grid_Cells(self):
+        for i in range(10):
+            for j in range(10):
+                cell = pygame.Rect(j*CELLSIZE, i*CELLSIZE, CELLSIZE, CELLSIZE)
+                if self.grid[i][j] == 1:
+                    cell_color = DARKGREEN
+                else:
+                    cell_color = GREEN
+                pygame.draw.rect(self.layout, cell_color, cell)
+    
+    def grid_Lines(self):
+        for width in range(0, (COLUMNS * CELLSIZE) + 1, CELLSIZE):
+            pygame.draw.line(self.layout, BLACK, (width,0), (width, ROWS * CELLSIZE), 2)
 
-    def run(self):
-        self.playing = True
-        while self.playing:
-            self.clock.tick(FPS)
-            self.events()
-            self.draw()
+        for height in range(0, (ROWS * CELLSIZE) + 1, CELLSIZE):
+            pygame.draw.line(self.layout, BLACK, (0, height), (COLUMNS * CELLSIZE, height), 2)
 
-    def draw(self):
-        self.screen.fill(BGCOLOR)
-        self.grid.draw(self.screen)
-        pygame.display.flip()
+    def play_Game(self):
+        while (self.isGameActive == True):
+            self.timer.tick(60)
+            for action in pygame.event.get():
+                if action.type == pygame.QUIT:
+                    self.isGameActive = False
 
+                if action.type == pygame.MOUSEBUTTONDOWN:
+                    row,col = (pygame.mouse.get_pos()[1] // CELLSIZE, pygame.mouse.get_pos()[0] // CELLSIZE)
+                    cell = self.grid.grid_list[row][col]
+                    cell.revealed = True
 
-    def events(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit(0)
+                    if cell.type == "B":
+                        print("Game Over!")
+                    else:
+                        cell.revealed = True
 
-game = Game()
-while True:
-    game.new()
-    game.run()
+            self.layout.fill(DARKGREEN)
+            self.grid.draw(self.layout)
+            self.grid_Lines()
+            pygame.display.update()
+        
+        pygame.quit()
