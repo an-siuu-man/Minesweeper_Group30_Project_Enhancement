@@ -27,13 +27,22 @@ FPS = 60
 TITLE = "Minesweeper"
 
 #Import assets 
-cell_num = []
-for i in range(1,9): 
-    cell_num.append(pygame.transform.scale(pygame.image.load(os.path.join(f"Cell{i}.png")), (CELLSIZE, CELLSIZE)))
+cell_num_1 = []
+cell_num_2 = []
+for i in range(1,9):
+    cell_num_1.append(pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"Cell{i}_1.png")), (CELLSIZE, CELLSIZE)))
+    cell_num_2.append(pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"Cell{i}_2.png")), (CELLSIZE, CELLSIZE)))
 
-empty_cell = pygame.transform.scale(pygame.image.load(os.path.join(f"CellEmpty.png")), (CELLSIZE, CELLSIZE)) #Update asset names accordingly 
-exploded_cell = pygame.transform.scale(pygame.image.load(os.path.join(f"CellExploded.png")), (CELLSIZE, CELLSIZE))
-flag_cell = pygame.transform.scale(pygame.image.load(os.path.join("CellFlag.png")), (CELLSIZE, CELLSIZE))
-bomb_cell = pygame.transform.scale(pygame.image.load(os.path.join(f"CellBomb.png")), (CELLSIZE, CELLSIZE))
-unknown_cell = pygame.transform.scale(pygame.image.load(os.path.join(f"CellUnknown.png")), (CELLSIZE, CELLSIZE))
-nobomb_cell = pygame.transform.scale(pygame.image.load(os.path.join(f"CellNoBomb.png")), (CELLSIZE, CELLSIZE))
+#Update asset names accordingly 
+empty_cell_1 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellEmpty_1.png")), (CELLSIZE, CELLSIZE))
+empty_cell_2 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellEmpty_2.png")), (CELLSIZE, CELLSIZE))
+exploded_cell_1 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellExploded_1.png")), (CELLSIZE, CELLSIZE))
+exploded_cell_2 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellExploded_2.png")), (CELLSIZE, CELLSIZE))
+flag_cell_1 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellFlag_1.png")), (CELLSIZE, CELLSIZE))
+flag_cell_2 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellFlag_2.png")), (CELLSIZE, CELLSIZE))
+bomb_cell_1 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellBomb_1.png")), (CELLSIZE, CELLSIZE))
+bomb_cell_2 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellBomb_2.png")), (CELLSIZE, CELLSIZE))
+unknown_cell_1 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellUnknown_1.png")), (CELLSIZE, CELLSIZE))
+unknown_cell_2 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellUnknown_2.png")), (CELLSIZE, CELLSIZE))
+no_bomb_cell_1 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellNoBomb_1.png")), (CELLSIZE, CELLSIZE))
+no_bomb_cell_1 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellNoBomb_2.png")), (CELLSIZE, CELLSIZE))
