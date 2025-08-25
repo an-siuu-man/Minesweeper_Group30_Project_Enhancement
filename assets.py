@@ -1,7 +1,7 @@
 import pygame
 from settings import *
 import random
-# Types: ~ = Unkown, B = Bomb, E = Empty
+# Types: ~ = Unkown, B = Bomb, E = Empty, test
 class Cell:
     def __init__(self, x, y, image, type, revealed=False, flagged=False):
         self.x = x * TILESIZE
