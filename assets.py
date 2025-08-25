@@ -3,7 +3,7 @@ from settings import *
 import random
 # Types: ~ = Unkown, B = Bomb, E = Empty, test
 class Cell:
-    def __init__(self, x, y, image, type, revealed=False, flagged=False):
+    def __init__(self, x, y, image, type = "~", revealed=False, flagged=False):
         self.x = x * CELLSIZE
         self.y = y * CELLSIZE
         self.image = image
@@ -12,8 +12,15 @@ class Cell:
         self.flagged = flagged
 
     def draw(self, grid_surface):
-        grid_surface.blit(self.image, (self.x, self.y))
-
+        if self.revealed == True:
+            if self.type == "~":
+                darkgreen_layer = pygame.Surface((CELLSIZE, CELLSIZE))
+                darkgreen_layer.fill(DARKGREEN)
+                grid_surface.blit(darkgreen_layer, (self.x, self.y))
+            else:
+                grid_surface.blit(self.image, (self.x, self.y))
+        else:
+            grid_surface.blit(unknown_cell, (self.x, self.y))
 
     def __repr__(self):
         return self.type
@@ -21,7 +28,7 @@ class Cell:
 class Grid:
     def __init__(self):
        self.grid_surface = pygame.Surface((WIDTH, HEIGHT))
-       self.grid_list = [[Cell(col, row, empty_cell, "~") for row in range(ROWS)] for col in range(COLUMNS)]
+       self.grid_list = [[Cell(col, row, unknown_cell, "~") for col in range(COLUMNS)] for row in range(ROWS)]
        self.generate_bombs()
 
     def display_board(self):
