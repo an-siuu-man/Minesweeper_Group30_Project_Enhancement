@@ -4,8 +4,8 @@ import random
 # Types: ~ = Unkown, B = Bomb, E = Empty, test
 class Cell:
     def __init__(self, x, y, image, type, revealed=False, flagged=False):
-        self.x = x * TILESIZE
-        self.y = y * TILESIZE
+        self.x = x * CELLSIZE
+        self.y = y * CELLSIZE
         self.image = image
         self.type = type
         self.revealed = revealed
@@ -17,7 +17,7 @@ class Cell:
 class Grid:
     def __init__(self):
        self.grid_surface = pygame.Surface((WIDTH, HEIGHT))
-       self.grid_list = [[Cell(col, row, empty_tile, ".") for row in range(ROWS)] for col in range(COLUMNS)]
+       self.grid_list = [[Cell(col, row, empty_cell, ".") for row in range(ROWS)] for col in range(COLUMNS)]
        self.generate_bombs()
   
     def display_board(self):
@@ -31,5 +31,5 @@ class Grid:
                 bomb_y_coord = random.randint(0, COLUMNS - 1)
                 if self.grid_list[bomb_x_coord][bomb_y_coord].type == "~":
                     self.grid_list[bomb_x_coord][bomb_y_coord].type = "B"
-                    self.grid_list[bomb_x_coord][bomb_y_coord].image = bomb_tile
+                    self.grid_list[bomb_x_coord][bomb_y_coord].image = bomb_cell
                     break
