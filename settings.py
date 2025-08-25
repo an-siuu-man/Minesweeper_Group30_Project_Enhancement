@@ -30,7 +30,7 @@ for i in range(1,9):
 
 empty_tile = pygame.transform.scale(pygame.image.load(os.path.join("assets", f"CellEmpty.png")), (TILESIZE, TILESIZE)) #Update asset names accordingly 
 exploded_tile = pygame.transform.scale(pygame.image.load(os.path.join("assets", f"CellExploded.png")), (TILESIZE, TILESIZE))
-flag_tile = pygame.transform.scale(pygame.image.load(os.path.join("assets", f"CeilFlag.png")), (TILESIZE, TILESIZE))
-bomb_tile = pygame.transform.scale(pygame.image.load(os.path.join("assets", f"CeilBomb.png")), (TILESIZE, TILESIZE))
+flag_tile = pygame.transform.scale(pygame.image.load(os.path.join("assets", f"CellFlag.png")), (TILESIZE, TILESIZE))
+bomb_tile = pygame.transform.scale(pygame.image.load(os.path.join("assets", f"CellBomb.png")), (TILESIZE, TILESIZE))
 unknown_tile = pygame.transform.scale(pygame.image.load(os.path.join("assets", f"CellUnknown.png")), (TILESIZE, TILESIZE))
 nobomb_tile = pygame.transform.scale(pygame.image.load(os.path.join("assets", f"CellNoBomb.png")), (TILESIZE, TILESIZE))
