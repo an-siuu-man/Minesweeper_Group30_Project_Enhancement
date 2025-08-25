@@ -31,12 +31,12 @@ class Game:
                     cell_color = GREEN
                 pygame.draw.rect(self.layout, cell_color, cell)
     
-    def grid_Lines(self):
-        for width in range(0, (COLUMNS * CELLSIZE) + 1, CELLSIZE):
-            pygame.draw.line(self.layout, BLACK, (width,0), (width, ROWS * CELLSIZE), 2)
+    # def grid_Lines(self):
+    #     for width in range(0, (COLUMNS * CELLSIZE) + 1, CELLSIZE):
+    #         pygame.draw.line(self.layout, BLACK, (width,0), (width, ROWS * CELLSIZE), 2)
 
-        for height in range(0, (ROWS * CELLSIZE) + 1, CELLSIZE):
-            pygame.draw.line(self.layout, BLACK, (0, height), (COLUMNS * CELLSIZE, height), 2)
+    #     for height in range(0, (ROWS * CELLSIZE) + 1, CELLSIZE):
+    #         pygame.draw.line(self.layout, BLACK, (0, height), (COLUMNS * CELLSIZE, height), 2)
 
     def play_Game(self):
         while (self.isGameActive == True):
@@ -57,7 +57,7 @@ class Game:
 
             self.layout.fill(DARKGREEN)
             self.grid.draw(self.layout)
-            self.grid_Lines()
+            # self.grid_Lines()
             pygame.display.update()
         
         pygame.quit()
