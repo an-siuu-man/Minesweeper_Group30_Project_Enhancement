@@ -28,13 +28,6 @@ class Game:
                 else:
                     cell_color = GREEN
                 pygame.draw.rect(self.layout, cell_color, cell)
-    
-    # def grid_lines(self):
-    #     for width in range(0, (COLUMNS * CELLSIZE) + 1, CELLSIZE):
-    #         pygame.draw.line(self.layout, BLACK, (width,0), (width, ROWS * CELLSIZE), 2)
-
-    #     for height in range(0, (ROWS * CELLSIZE) + 1, CELLSIZE):
-    #         pygame.draw.line(self.layout, BLACK, (0, height), (COLUMNS * CELLSIZE, height), 2)
 
     def front_page(self):
         self.layout.fill(DARKGREEN)
