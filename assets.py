@@ -15,11 +15,15 @@ class Cell:
         if self.revealed:
             if not self.flagged: #Draw numbered cells
                 grid_surface.blit(self.image, (self.x, self.y))
-        else: 
-            if self.flagged: #Draw Flag
-                pass
-            else: #Draw Unknown
-                if ((self.x + self.y) / CELLSIZE) % 2 == 0:
+        else:
+        # COVERED: this will show a flag if flagged, otherwise the unknown tile
+            if self.flagged:
+                if ((self.x + self.y) // CELLSIZE) % 2 == 0:
+                    grid_surface.blit(flag_cell_1, (self.x, self.y))
+                else:
+                    grid_surface.blit(flag_cell_2, (self.x, self.y))
+            else:
+                if ((self.x + self.y) // CELLSIZE) % 2 == 0:
                     grid_surface.blit(unknown_cell_1, (self.x, self.y))
                 else:
                     grid_surface.blit(unknown_cell_2, (self.x, self.y))
@@ -45,7 +49,24 @@ class Grid:
     ]
         self.bombs_generated = False
         self.numbers_generated = False
+        self.mine_count = bomb_amount #total mines/bombs = total flags
+        self.flags_placed = 0 #this tracks how many flags are placed
 
+    def flags_remaining(self):
+        return self.mine_count - self.flags_placed
+    
+    def toggle_flag(self, r, c):
+        cell = self.grid_list[r][c]
+        if cell.revealed:
+            return
+        if cell.flagged:
+            cell.flagged = False
+            self.flags_placed = max(0, self.flags_placed - 1)
+        else:
+            if self.flags_remaining() > 0:
+                cell.flagged = True
+                self.flags_placed += 1
+    
     def display_board(self):
         for row in self.grid_list:
            print(row)
