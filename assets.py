@@ -43,13 +43,13 @@ class Grid:
         ]
         for row in range(ROWS)
     ]
-
-        self.generate_bombs()
-        self.generate_numbers()
+        self.bombs_generated = False
+        self.numbers_generated = False
 
     def display_board(self):
         for row in self.grid_list:
            print(row)
+        print("")
 
     def generate_numbers(self):
         for x in range(ROWS):
@@ -59,6 +59,7 @@ class Grid:
                     if total_bombs > 0:
                         self.grid_list[x][y].image = cell_num_1[total_bombs - 1] if (x + y) % 2 == 0 else cell_num_2[total_bombs - 1]
                         self.grid_list[x][y].type = "N"
+        self.numbers_generated = True
 
     @staticmethod
     def is_inside_grid(x, y):
@@ -90,12 +91,19 @@ class Grid:
                 cell.draw(self.grid_surface)
         screen.blit(self.grid_surface, (0, 0))
 
-    def generate_bombs(self):
-        for i in range(self.bomb_amount):
-            while True:
-                bomb_x_coord = random.randint(0, ROWS-1)
-                bomb_y_coord = random.randint(0, COLUMNS - 1)
-                if self.grid_list[bomb_x_coord][bomb_y_coord].type == "E":
-                    self.grid_list[bomb_x_coord][bomb_y_coord].type = "B"
-                    self.grid_list[bomb_x_coord][bomb_y_coord].image = bomb_cell_1 if (bomb_x_coord + bomb_y_coord) % 2 == 0 else bomb_cell_2
-                    break
+    def generate_bombs(self, safe_row, safe_col):
+        planted_bombs = 0
+        while planted_bombs < self.bomb_amount:
+            bomb_x_coord = random.randint(0, ROWS-1)
+            bomb_y_coord = random.randint(0, COLUMNS - 1)
+
+            if bomb_x_coord == safe_row and bomb_y_coord == safe_col:
+                continue
+
+            if self.grid_list[bomb_x_coord][bomb_y_coord].type == "E":
+                self.grid_list[bomb_x_coord][bomb_y_coord].type = "B"
+                self.grid_list[bomb_x_coord][bomb_y_coord].image = bomb_cell_1 if (bomb_x_coord + bomb_y_coord) % 2 == 0 else bomb_cell_2
+
+            planted_bombs += 1
+        
+        self.bombs_generated = True
