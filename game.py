@@ -69,7 +69,6 @@ class Game:
             elif self.state == "play":
                 self.layout.fill(DARKGREEN)
                 self.grid.draw(self.layout)
-                # self.grid_lines()
             pygame.display.update()
         
         pygame.quit()
