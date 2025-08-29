@@ -129,3 +129,8 @@ class Grid:
             planted_bombs += 1
         
         self.bombs_generated = True
+    def reveal_bombs(self):
+        for row in self.grid_list:
+            for cell in row:
+                if cell.type == "B":
+                    cell.revealed = True

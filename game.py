@@ -59,24 +59,12 @@ class Game:
         right_arrow = pygame.Rect(bomb_selector_pos.right + 10, bomb_selector_pos.centery - 15, 30, 30)
         pygame.draw.polygon(self.layout, LIGHTBLUE, [(left_arrow.right, left_arrow.top), (left_arrow.right, left_arrow.bottom), (left_arrow.left, left_arrow.centery)])
         pygame.draw.polygon(self.layout, LIGHTBLUE, [(right_arrow.left, right_arrow.top), (right_arrow.left, right_arrow.bottom), (right_arrow.right, right_arrow.centery)])
-        # Button to generate.
-        # This is for the display of amount of bombs selected.
-        bomb_selector_font = pygame.font.SysFont("Times New Roman", 32)
-        bomb_selector_text = bomb_selector_font.render(f"Bombs: {self.bomb_amount}", True, WHITE)
-        bomb_selector_pos = bomb_selector_text.get_rect(center=(COLUMNS * CELLSIZE // 2, ROWS * CELLSIZE // 2))
-        self.layout.blit(bomb_selector_text, bomb_selector_pos)
-        # This is the arrows for adding more/less bombs.
-        left_arrow = pygame.Rect(bomb_selector_pos.left - 40, bomb_selector_pos.centery - 15, 30, 30)
-        right_arrow = pygame.Rect(bomb_selector_pos.right + 10, bomb_selector_pos.centery - 15, 30, 30)
-        pygame.draw.polygon(self.layout, LIGHTBLUE, [(left_arrow.right, left_arrow.top), (left_arrow.right, left_arrow.bottom), (left_arrow.left, left_arrow.centery)])
-        pygame.draw.polygon(self.layout, LIGHTBLUE, [(right_arrow.left, right_arrow.top), (right_arrow.left, right_arrow.bottom), (right_arrow.right, right_arrow.centery)])
-        # Button to generate.
-        button_font = pygame.font.SysFont("Times New Roman", 40, bold=True)
+        # Play Game Button
+        button_font = pygame.font.SysFont("Times New Roman", 35, bold=True)
         button_title = button_font.render("Play Game!", True, BLUE)
-        button_pos = pygame.Rect(0, 0, 200, 60)
-        button_pos = pygame.Rect(0, 0, 200, 60)
+        button_pos = pygame.Rect(0, 0, 220, 60)
         button_pos.center = (COLUMNS * CELLSIZE // 2, ROWS * CELLSIZE // 1.5)
-        pygame.draw.rect(self.layout, LIGHTBLUE, button_pos)
+        pygame.draw.rect(self.layout, LIGHTBLUE, button_pos, border_radius=15)
         self.layout.blit(button_title, button_title.get_rect(center=button_pos.center))
 
         return button_pos, left_arrow, right_arrow
@@ -156,6 +144,7 @@ class Game:
                 self.layout.fill(DARKGREEN)
                 self.draw_hud()
                 self.grid.draw(self.layout)
+                self.grid.reveal_bombs()
                 self.game_over_page()
             pygame.display.update()
         
