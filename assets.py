@@ -94,7 +94,7 @@ class Grid:
             while True:
                 bomb_x_coord = random.randint(0, ROWS-1)
                 bomb_y_coord = random.randint(0, COLUMNS - 1)
-                if self.grid_list[bomb_x_coord][bomb_y_coord].type == "~":
+                if self.grid_list[bomb_x_coord][bomb_y_coord].type == "E":
                     self.grid_list[bomb_x_coord][bomb_y_coord].type = "B"
                     self.grid_list[bomb_x_coord][bomb_y_coord].image = bomb_cell_1 if (bomb_x_coord + bomb_y_coord) % 2 == 0 else bomb_cell_2
                     break
