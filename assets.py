@@ -71,3 +71,5 @@ class Grid:
                 else:
                     self.grid_list[bomb_x_coord][bomb_y_coord].image = bomb_cell_2
                 planted_bombs += 1
+        
+        self.bombs_generated = True

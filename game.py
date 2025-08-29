@@ -12,7 +12,6 @@ class Game:
         self.timer = pygame.time.Clock()
         self.isGameActive = True
         self.grid = Grid()
-        self.grid.display_board()
         self.state = "front-page"
 
     def empty_game_board_generation(self):
@@ -58,6 +57,11 @@ class Game:
                     if action.type == pygame.MOUSEBUTTONDOWN:
                         row,col = (pygame.mouse.get_pos()[1] // CELLSIZE, pygame.mouse.get_pos()[0] // CELLSIZE)
                         cell = self.grid.grid_list[row][col]
+                        
+                        if self.grid.bombs_generated == False:
+                            self.grid.generate_bombs(row,col)
+                            self.grid.display_board()
+                            
                         cell.revealed = True
 
                         if cell.type == "B":
