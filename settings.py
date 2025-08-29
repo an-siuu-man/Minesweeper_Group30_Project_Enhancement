@@ -5,9 +5,9 @@ import os
 BLACK = (0,0,0)
 WHITE = (255,255,255)
 RED = (255,0,0)
-LIGHTGREEN = (144)
+LIGHTGREEN = (155, 210, 66) #Needed
 GREEN = (0,255,0)
-DARKGREEN = (0,128,0)
+DARKGREEN = (74, 117, 44) #Needed
 BLUE = (0,0,255)
 DARKBLUE = (0,0,139)
 LIGHTBLUE = (173,216,230)
@@ -21,9 +21,11 @@ CELLSIZE = 50
 ROWS = 10
 COLUMNS = 10
 BOMB_AMT = 10 #Need to update so user-sepecifed from 10 to 20 
-HUD_HEIGHT = 40
-WIDTH = CELLSIZE * ROWS
-HEIGHT = CELLSIZE * COLUMNS
+PADDING = 50
+GRID_WIDTH = CELLSIZE * ROWS
+GRID_HEIGHT = CELLSIZE * COLUMNS
+WIDTH = GRID_WIDTH + (2 * PADDING)
+HEIGHT = GRID_HEIGHT + (2 * PADDING)
 FPS = 60
 TITLE = "Minesweeper"
 
@@ -47,3 +49,6 @@ unknown_cell_1 = pygame.transform.scale(pygame.image.load(os.path.join("Assets",
 unknown_cell_2 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellUnknown_2.png")), (CELLSIZE, CELLSIZE))
 no_bomb_cell_1 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellNoBomb_1.png")), (CELLSIZE, CELLSIZE))
 no_bomb_cell_1 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellNoBomb_2.png")), (CELLSIZE, CELLSIZE))
+
+#Background Image
+background_img = pygame.transform.scale(pygame.image.load("Assets/Background.png"), (WIDTH, HEIGHT))

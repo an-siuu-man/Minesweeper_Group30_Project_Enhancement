@@ -34,7 +34,7 @@ class Cell:
 class Grid:
     def __init__(self, bomb_amount = 10):
         self.bomb_amount = bomb_amount
-        self.grid_surface = pygame.Surface((WIDTH, HEIGHT))
+        self.grid_surface = pygame.Surface((GRID_WIDTH, GRID_HEIGHT))
         self.grid_list = self.grid_list = [
         [
             Cell(
@@ -111,7 +111,7 @@ class Grid:
             for cell in row:
                 cell.draw(self.grid_surface)
         # Need a HUD_HEIGHT for the header/menu banner part.
-        screen.blit(self.grid_surface, (0, HUD_HEIGHT))
+        screen.blit(self.grid_surface, (PADDING, PADDING))
 
     def generate_bombs(self, safe_row, safe_col):
         planted_bombs = 0
