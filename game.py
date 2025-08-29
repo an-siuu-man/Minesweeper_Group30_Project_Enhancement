@@ -94,15 +94,30 @@ class Game:
                         cell.revealed = True
 
                         if cell.type == "B":
-                            print("Game Over!")
-                        else:
-                            cell.revealed = True
+                            self.state = "game-over"
+                            #print("Game Over!")
+                        #else:
+                            #cell.revealed = True
             if self.state == "front-page":
                 self.front_page()
             elif self.state == "play":
                 self.layout.fill(DARKGREEN)
                 self.grid.draw(self.layout)
                 # self.grid_lines()
+            elif self.state == "game-over":
+                self.layout.fill(DARKGREEN)
+                self.grid.draw(self.layout)
+                self.game_over_page()
             pygame.display.update()
         
         pygame.quit()
+
+    def game_over_page(self):
+        overlay = pygame.Surface((COLUMNS * CELLSIZE, ROWS * CELLSIZE), pygame.SRCALPHA)
+        overlay.fill((100, 100, 100, 100))
+        self.layout.blit(overlay, (0, 0))
+
+        font = pygame.font.SysFont("Times New Roman", 60, bold=True)
+        text = font.render("Game Over!", True, BLACK)
+        text_rect = text.get_rect(center=(COLUMNS * CELLSIZE // 2, ROWS * CELLSIZE // 2))
+        self.layout.blit(text, text_rect)
