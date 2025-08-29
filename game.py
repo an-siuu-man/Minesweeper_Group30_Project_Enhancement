@@ -13,7 +13,12 @@ class Game:
         self.isGameActive = True
         self.grid = None
         # self.grid.display_board()
+        self.grid = None
+        # self.grid.display_board()
         self.state = "front-page"
+        self.bomb_amount = 10 # Default
+        self.bomb_min = 10
+        self.bomb_max = 20
         self.bomb_amount = 10 # Default
         self.bomb_min = 10
         self.bomb_max = 20
@@ -31,13 +36,6 @@ class Game:
                 else:
                     cell_color = GREEN
                 pygame.draw.rect(self.layout, cell_color, cell)
-    
-    # def grid_lines(self):
-    #     for width in range(0, (COLUMNS * CELLSIZE) + 1, CELLSIZE):
-    #         pygame.draw.line(self.layout, BLACK, (width,0), (width, ROWS * CELLSIZE), 2)
-
-    #     for height in range(0, (ROWS * CELLSIZE) + 1, CELLSIZE):
-    #         pygame.draw.line(self.layout, BLACK, (0, height), (COLUMNS * CELLSIZE, height), 2)
 
     def front_page(self):
         self.layout.fill(DARKGREEN)
@@ -56,12 +54,27 @@ class Game:
         pygame.draw.polygon(self.layout, LIGHTBLUE, [(left_arrow.right, left_arrow.top), (left_arrow.right, left_arrow.bottom), (left_arrow.left, left_arrow.centery)])
         pygame.draw.polygon(self.layout, LIGHTBLUE, [(right_arrow.left, right_arrow.top), (right_arrow.left, right_arrow.bottom), (right_arrow.right, right_arrow.centery)])
         # Button to generate.
+        # This is for the display of amount of bombs selected.
+        bomb_selector_font = pygame.font.SysFont("Times New Roman", 32)
+        bomb_selector_text = bomb_selector_font.render(f"Bombs: {self.bomb_amount}", True, WHITE)
+        bomb_selector_pos = bomb_selector_text.get_rect(center=(COLUMNS * CELLSIZE // 2, ROWS * CELLSIZE // 2))
+        self.layout.blit(bomb_selector_text, bomb_selector_pos)
+        # This is the arrows for adding more/less bombs.
+        left_arrow = pygame.Rect(bomb_selector_pos.left - 40, bomb_selector_pos.centery - 15, 30, 30)
+        right_arrow = pygame.Rect(bomb_selector_pos.right + 10, bomb_selector_pos.centery - 15, 30, 30)
+        pygame.draw.polygon(self.layout, LIGHTBLUE, [(left_arrow.right, left_arrow.top), (left_arrow.right, left_arrow.bottom), (left_arrow.left, left_arrow.centery)])
+        pygame.draw.polygon(self.layout, LIGHTBLUE, [(right_arrow.left, right_arrow.top), (right_arrow.left, right_arrow.bottom), (right_arrow.right, right_arrow.centery)])
+        # Button to generate.
         button_font = pygame.font.SysFont("Times New Roman", 40, bold=True)
         button_title = button_font.render("Generate", True, BLUE)
+        button_pos = pygame.Rect(0, 0, 200, 60)
         button_pos = pygame.Rect(0, 0, 200, 60)
         button_pos.center = (COLUMNS * CELLSIZE // 2, ROWS * CELLSIZE // 1.5)
         pygame.draw.rect(self.layout, LIGHTBLUE, button_pos)
         self.layout.blit(button_title, button_title.get_rect(center=button_pos.center))
+
+        return button_pos, left_arrow, right_arrow
+
 
         return button_pos, left_arrow, right_arrow
 
@@ -77,23 +90,28 @@ class Game:
                     if action.type == pygame.MOUSEBUTTONDOWN:
                         mouse_pos = pygame.mouse.get_pos()
                         button_pos, left_arrow, right_arrow = self.front_page()
-
                         if left_arrow.collidepoint(mouse_pos):
                             if self.bomb_amount > self.bomb_min:
-                                self.bomb_amount -= 1
+                                self.bomb_amount -=1
                         elif right_arrow.collidepoint(mouse_pos):
                             if self.bomb_amount < self.bomb_max:
-                                self.bomb_amount += 1
+                                self.bomb_amount +=1
                         elif button_pos.collidepoint(mouse_pos):
                             self.grid = Grid(bomb_amount=self.bomb_amount)
                             self.grid.display_board()
                             self.state = "play"
+
 
                 elif self.state == "play":
                     if action.type == pygame.MOUSEBUTTONDOWN:
                         mx, my = pygame.mouse.get_pos()
                         row, col = my // CELLSIZE, mx // CELLSIZE
                         cell = self.grid.grid_list[row][col]
+                        
+                        if self.grid.bombs_generated == False:
+                            self.grid.generate_bombs(row,col)
+                            self.grid.generate_numbers()
+                            self.grid.display_board()
 
                         # ---right-click toggles flag added ---
                         if action.button == 3:
@@ -109,22 +127,35 @@ class Game:
                                 continue
                             cell.revealed = True
 
-                            if cell.type == "B":
-                                print("Game Over!")
+                        if cell.type == "B":
+                            self.state = "game-over"
+                            #print("Game Over!")
+                        #else:
+                            #cell.revealed = True
+            if self.state == "front-page":
+                self.front_page()
+            elif self.state == "play":
+                self.layout.fill(DARKGREEN)
+                self.grid.draw(self.layout)
+                # self.grid_lines()
+            elif self.state == "game-over":
+                self.layout.fill(DARKGREEN)
+                self.grid.draw(self.layout)
+                self.game_over_page()
+                if hasattr(self.grid, "flags_remaining"):
+                    hud_font = pygame.font.SysFont("Arial", 24, bold=True)
+                    flags_text = hud_font.render(f"Flags left: {self.grid.flags_remaining()}", True, WHITE)
+                    self.layout.blit(flags_text, (8, 8))
+            pygame.display.update()
+        
+        pygame.quit()
 
-        # ---------- drawing ----------
-        if self.state == "front-page":
-            self.front_page()
-        elif self.state == "play":
-            self.layout.fill(DARKGREEN)
-            self.grid.draw(self.layout)
-            # self.grid_lines()
+    def game_over_page(self):
+        overlay = pygame.Surface((COLUMNS * CELLSIZE, ROWS * CELLSIZE), pygame.SRCALPHA)
+        overlay.fill((100, 100, 100, 100))
+        self.layout.blit(overlay, (0, 0))
 
-            if hasattr(self.grid, "flags_remaining"):
-                hud_font = pygame.font.SysFont("Arial", 24, bold=True)
-                flags_text = hud_font.render(f"Flags left: {self.grid.flags_remaining()}", True, WHITE)
-                self.layout.blit(flags_text, (8, 8))
-
-        pygame.display.update()
-
-    pygame.quit()
+        font = pygame.font.SysFont("Times New Roman", 60, bold=True)
+        text = font.render("Game Over!", True, BLACK)
+        text_rect = text.get_rect(center=(COLUMNS * CELLSIZE // 2, ROWS * CELLSIZE // 2))
+        self.layout.blit(text, text_rect)
