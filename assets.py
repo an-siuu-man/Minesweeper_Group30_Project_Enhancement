@@ -19,17 +19,24 @@ class Cell:
                 grid_surface.blit(darkgreen_layer, (self.x, self.y))
             else: #Draw Bomb
                 grid_surface.blit(self.image, (self.x, self.y))
-        else: #Draw Unknown
-            if ((self.x + self.y) / CELLSIZE) % 2 == 0:
-                grid_surface.blit(unknown_cell_1, (self.x, self.y))
+        else:
+        # COVERED: this will show a flag if flagged, otherwise the unknown tile
+            if self.flagged:
+                if ((self.x + self.y) // CELLSIZE) % 2 == 0:
+                    grid_surface.blit(flag_cell_1, (self.x, self.y))
+                else:
+                    grid_surface.blit(flag_cell_2, (self.x, self.y))
             else:
-                grid_surface.blit(unknown_cell_2, (self.x, self.y))
+                if ((self.x + self.y) // CELLSIZE) % 2 == 0:
+                    grid_surface.blit(unknown_cell_1, (self.x, self.y))
+                else:
+                    grid_surface.blit(unknown_cell_2, (self.x, self.y))
 
     def __repr__(self):
         return self.type
 
 class Grid:
-    def __init__(self):
+    def __init__(self, bomb_amount = BOMB_AMT):
         self.grid_surface = pygame.Surface((WIDTH, HEIGHT))
         self.grid_list = self.grid_list = [
         [
@@ -44,8 +51,25 @@ class Grid:
         for row in range(ROWS)
     ]
 
+        self.mine_count = bomb_amount #total mines/bombs = total flags
+        self.flags_placed = 0 #this tracks how many flags are placed
         self.generate_bombs()
 
+    def flags_remaining(self):
+        return self.mine_count - self.flags_placed
+    
+    def toggle_flag(self, r, c):
+        cell = self.grid_list[r][c]
+        if cell.revealed:
+            return
+        if cell.flagged:
+            cell.flagged = False
+            self.flags_placed = max(0, self.flags_placed - 1)
+        else:
+            if self.flags_remaining() > 0:
+                cell.flagged = True
+                self.flags_placed += 1
+    
     def display_board(self):
         for row in self.grid_list:
            print(row)
@@ -57,7 +81,7 @@ class Grid:
         screen.blit(self.grid_surface, (0, 0))
 
     def generate_bombs(self):
-        for i in range(BOMB_AMT):
+        for i in range(self.mine_count):
             while True:
                 bomb_x_coord = random.randint(0, ROWS-1)
                 bomb_y_coord = random.randint(0, COLUMNS - 1)
