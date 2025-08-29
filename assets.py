@@ -110,7 +110,8 @@ class Grid:
         for row in self.grid_list:
             for cell in row:
                 cell.draw(self.grid_surface)
-        screen.blit(self.grid_surface, (0, 0))
+        # Need a HUD_HEIGHT for the header/menu banner part.
+        screen.blit(self.grid_surface, (0, HUD_HEIGHT))
 
     def generate_bombs(self, safe_row, safe_col):
         planted_bombs = 0

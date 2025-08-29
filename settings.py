@@ -21,6 +21,7 @@ CELLSIZE = 50
 ROWS = 10
 COLUMNS = 10
 BOMB_AMT = 10 #Need to update so user-sepecifed from 10 to 20 
+HUD_HEIGHT = 40
 WIDTH = CELLSIZE * ROWS
 HEIGHT = CELLSIZE * COLUMNS
 FPS = 60

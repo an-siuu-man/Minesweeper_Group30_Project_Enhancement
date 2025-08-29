@@ -7,7 +7,7 @@ class Game:
     def __init__(self):
         pygame.init()
 
-        self.layout = pygame.display.set_mode((COLUMNS * CELLSIZE, ROWS * CELLSIZE))
+        self.layout = pygame.display.set_mode((COLUMNS * CELLSIZE, ROWS * CELLSIZE + HUD_HEIGHT))
         pygame.display.set_caption("Minesweeper")
         self.timer = pygame.time.Clock()
         self.isGameActive = True
@@ -36,7 +36,7 @@ class Game:
     def grid_cells(self):
         for i in range(10):
             for j in range(10):
-                cell = pygame.Rect(j*CELLSIZE, i*CELLSIZE, CELLSIZE, CELLSIZE)
+                cell = pygame.Rect(j*CELLSIZE, i*CELLSIZE + HUD_HEIGHT, CELLSIZE, CELLSIZE)
                 if self.grid[i][j] == 1:
                     cell_color = DARKGREEN
                 else:
@@ -72,7 +72,7 @@ class Game:
         pygame.draw.polygon(self.layout, LIGHTBLUE, [(right_arrow.left, right_arrow.top), (right_arrow.left, right_arrow.bottom), (right_arrow.right, right_arrow.centery)])
         # Button to generate.
         button_font = pygame.font.SysFont("Times New Roman", 40, bold=True)
-        button_title = button_font.render("Generate", True, BLUE)
+        button_title = button_font.render("Play Game!", True, BLUE)
         button_pos = pygame.Rect(0, 0, 200, 60)
         button_pos = pygame.Rect(0, 0, 200, 60)
         button_pos.center = (COLUMNS * CELLSIZE // 2, ROWS * CELLSIZE // 1.5)
@@ -81,9 +81,14 @@ class Game:
 
         return button_pos, left_arrow, right_arrow
 
+    def draw_hud(self):
+        hud_rect = pygame.Rect(0, 0, COLUMNS * CELLSIZE, 40)
+        pygame.draw.rect(self.layout, RED, hud_rect)
 
-        return button_pos, left_arrow, right_arrow
-
+        if hasattr(self.grid, "flags_remaining"):
+            hud_font = pygame.font.SysFont("Times New Roman", 24, bold=True)
+            flags_text = hud_font.render(f"Flags Left: {self.grid.flags_remaining()}", True, WHITE)
+            self.layout.blit(flags_text, (10, 8))
 
     def play_game(self):
         while self.isGameActive:
@@ -111,7 +116,9 @@ class Game:
                 elif self.state == "play":
                     if action.type == pygame.MOUSEBUTTONDOWN:
                         mx, my = pygame.mouse.get_pos()
-                        row, col = my // CELLSIZE, mx // CELLSIZE
+                        row, col = (my - HUD_HEIGHT) // CELLSIZE, mx // CELLSIZE
+                        if my < HUD_HEIGHT:
+                            continue
                         cell = self.grid.grid_list[row][col]
                         
                         if self.grid.bombs_generated == False:
@@ -142,26 +149,24 @@ class Game:
                 self.front_page()
             elif self.state == "play":
                 self.layout.fill(DARKGREEN)
+                self.draw_hud()
                 self.grid.draw(self.layout)
                 # self.grid_lines()
             elif self.state == "game-over":
                 self.layout.fill(DARKGREEN)
+                self.draw_hud()
                 self.grid.draw(self.layout)
                 self.game_over_page()
-                if hasattr(self.grid, "flags_remaining"):
-                    hud_font = pygame.font.SysFont("Arial", 24, bold=True)
-                    flags_text = hud_font.render(f"Flags left: {self.grid.flags_remaining()}", True, WHITE)
-                    self.layout.blit(flags_text, (8, 8))
             pygame.display.update()
         
         pygame.quit()
 
     def game_over_page(self):
-        overlay = pygame.Surface((COLUMNS * CELLSIZE, ROWS * CELLSIZE), pygame.SRCALPHA)
+        overlay = pygame.Surface((COLUMNS * CELLSIZE, ROWS * CELLSIZE + HUD_HEIGHT), pygame.SRCALPHA)
         overlay.fill((100, 100, 100, 100))
         self.layout.blit(overlay, (0, 0))
 
         font = pygame.font.SysFont("Times New Roman", 60, bold=True)
         text = font.render("Game Over!", True, BLACK)
-        text_rect = text.get_rect(center=(COLUMNS * CELLSIZE // 2, ROWS * CELLSIZE // 2))
+        text_rect = text.get_rect(center=(COLUMNS * CELLSIZE // 2, ROWS * CELLSIZE // 2 + HUD_HEIGHT))
         self.layout.blit(text, text_rect)
