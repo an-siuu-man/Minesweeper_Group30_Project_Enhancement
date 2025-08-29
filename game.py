@@ -22,6 +22,12 @@ class Game:
         self.bomb_amount = 10 # Default
         self.bomb_min = 10
         self.bomb_max = 20
+        pygame.mixer.init()
+        pygame.mixer.music.load('Assets/game-music.wav')
+        pygame.mixer.music.set_volume(0.4)
+        pygame.mixer.music.play(-1)
+        pygame.mixer.init()
+
 
     def empty_game_board_generation(self):
         grid_Structure = [[0 for i in range(COLUMNS)] for i in range(ROWS)]
