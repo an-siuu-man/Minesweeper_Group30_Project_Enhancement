@@ -43,8 +43,7 @@ class Grid:
         ]
         for row in range(ROWS)
     ]
-
-        self.generate_bombs()
+        self.bombs_generated = False
 
     def display_board(self):
         for row in self.grid_list:
@@ -56,15 +55,19 @@ class Grid:
                 cell.draw(self.grid_surface)
         screen.blit(self.grid_surface, (0, 0))
 
-    def generate_bombs(self):
-        for i in range(BOMB_AMT):
-            while True:
-                bomb_x_coord = random.randint(0, ROWS-1)
-                bomb_y_coord = random.randint(0, COLUMNS - 1)
-                if self.grid_list[bomb_x_coord][bomb_y_coord].type == "~":
-                    self.grid_list[bomb_x_coord][bomb_y_coord].type = "B"
-                    if (bomb_x_coord + bomb_y_coord) % 2 == 0:
-                        self.grid_list[bomb_x_coord][bomb_y_coord].image = bomb_cell_1
-                    else:
-                        self.grid_list[bomb_x_coord][bomb_y_coord].image = bomb_cell_2
-                    break
+    def generate_bombs(self, safe_row, safe_col):
+        planted_bombs = 0
+        while planted_bombs < BOMB_AMT:
+            bomb_x_coord = random.randint(0, ROWS-1)
+            bomb_y_coord = random.randint(0, COLUMNS - 1)
+
+            if bomb_x_coord == safe_row and bomb_y_coord == safe_col:
+                continue
+
+            if self.grid_list[bomb_x_coord][bomb_y_coord].type == "~":
+                self.grid_list[bomb_x_coord][bomb_y_coord].type = "B"
+                if (bomb_x_coord + bomb_y_coord) % 2 == 0:
+                    self.grid_list[bomb_x_coord][bomb_y_coord].image = bomb_cell_1
+                else:
+                    self.grid_list[bomb_x_coord][bomb_y_coord].image = bomb_cell_2
+                planted_bombs += 1
