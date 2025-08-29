@@ -11,9 +11,12 @@ class Game:
         pygame.display.set_caption("Minesweeper")
         self.timer = pygame.time.Clock()
         self.isGameActive = True
-        self.grid = Grid()
-        self.grid.display_board()
+        self.grid = None
+        # self.grid.display_board()
         self.state = "front-page"
+        self.bomb_amount = 10 # Default
+        self.bomb_min = 10
+        self.bomb_max = 20
 
     def empty_game_board_generation(self):
         grid_Structure = [[0 for i in range(COLUMNS)] for i in range(ROWS)]
@@ -42,13 +45,26 @@ class Game:
         front_page_title = title_font.render(TITLE, True, BLUE)
         title_pos = front_page_title.get_rect(center=(COLUMNS * CELLSIZE // 2, ROWS * CELLSIZE // 3))
         self.layout.blit(front_page_title, title_pos)
+        
+        bomb_selector_font = pygame.font.SysFont("Times New Roman", 32)
+        bomb_selector_text = bomb_selector_font.render(f"Bombs: {self.bomb_amount}", True, WHITE)
+        bomb_selector_pos = bomb_selector_text.get_rect(center=(COLUMNS * CELLSIZE // 2, ROWS * CELLSIZE // 2))
+        self.layout.blit(bomb_selector_text, bomb_selector_pos)
+        
+        left_arrow = pygame.Rect(bomb_selector_pos.left - 40, bomb_selector_pos.centery - 15, 30, 30)
+        right_arrow = pygame.Rect(bomb_selector_pos.right + 10, bomb_selector_pos.centery - 15, 30, 30)
+        pygame.draw.polygon(self.layout, LIGHTBLUE, [(left_arrow.right, left_arrow.top), (left_arrow.right, left_arrow.bottom), (left_arrow.left, left_arrow.centery)])
+        pygame.draw.polygon(self.layout, LIGHTBLUE, [(right_arrow.left, right_arrow.top), (right_arrow.left, right_arrow.bottom), (right_arrow.right, right_arrow.centery)])
+
         button_font = pygame.font.SysFont("Times New Roman", 40, bold=True)
         button_title = button_font.render("Generate", True, BLUE)
-        button_pos = pygame.Rect(0,0,200,60)
+        button_pos = pygame.Rect(0, 0, 200, 60)
         button_pos.center = (COLUMNS * CELLSIZE // 2, ROWS * CELLSIZE // 1.5)
         pygame.draw.rect(self.layout, LIGHTBLUE, button_pos)
         self.layout.blit(button_title, button_title.get_rect(center=button_pos.center))
-        return button_pos
+
+        return button_pos, left_arrow, right_arrow
+
 
     def play_game(self):
         while (self.isGameActive == True):
@@ -59,8 +75,18 @@ class Game:
                 if self.state == "front-page":
                     if action.type == pygame.MOUSEBUTTONDOWN:
                         mouse_pos = pygame.mouse.get_pos()
-                        if self.front_page().collidepoint(mouse_pos):
+                        button_pos, left_arrow, right_arrow = self.front_page()
+                        if left_arrow.collidepoint(mouse_pos):
+                            if self.bomb_amount > self.bomb_min:
+                                self.bomb_amount -=1
+                        elif right_arrow.collidepoint(mouse_pos):
+                            if self.bomb_amount < self.bomb_max:
+                                self.bomb_amount +=1
+                        elif button_pos.collidepoint(mouse_pos):
+                            self.grid = Grid(bomb_amount=self.bomb_amount)
+                            self.grid.display_board()
                             self.state = "play"
+
                 elif self.state == "play":
                     if action.type == pygame.MOUSEBUTTONDOWN:
                         row,col = (pygame.mouse.get_pos()[1] // CELLSIZE, pygame.mouse.get_pos()[0] // CELLSIZE)

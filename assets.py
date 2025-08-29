@@ -29,7 +29,8 @@ class Cell:
         return self.type
 
 class Grid:
-    def __init__(self):
+    def __init__(self, bomb_amount = 10):
+        self.bomb_amount = bomb_amount
         self.grid_surface = pygame.Surface((WIDTH, HEIGHT))
         self.grid_list = self.grid_list = [
         [
@@ -57,7 +58,7 @@ class Grid:
         screen.blit(self.grid_surface, (0, 0))
 
     def generate_bombs(self):
-        for i in range(BOMB_AMT):
+        for i in range(self.bomb_amount):
             while True:
                 bomb_x_coord = random.randint(0, ROWS-1)
                 bomb_y_coord = random.randint(0, COLUMNS - 1)
