@@ -22,6 +22,8 @@ class Game:
         pygame.mixer.music.load('Assets/game-music.wav')
         pygame.mixer.music.set_volume(0.4)
         pygame.mixer.music.play(-1)
+        self.game_over_sound = pygame.mixer.Sound("Assets/game-lose-music.wav")
+        self.game_win_sound = pygame.mixer.Sound("Assets/game-win-music.wav")
         pygame.mixer.init()
 
     def front_page(self):
@@ -148,9 +150,11 @@ class Game:
                                 continue
                             cell.revealed = True
                         if cell.type == "B":
+                            self.game_over_sound.play()
                             self.state = "game-over"
                         is_winner = self.grid.check_win() # If not a bomb, check if this was the winning move.
                         if is_winner:
+                            self.game_win_sound.play()
                             self.state = "game-win"
                 elif self.state == "game-over":
                     self.layout.fill(DARKGREEN)
