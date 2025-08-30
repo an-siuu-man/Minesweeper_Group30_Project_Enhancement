@@ -147,10 +147,17 @@ class Game:
                                 # can't uncover a flagged cell
                                 continue
                             cell.revealed = True
-
                         if cell.type == "B":
                             self.state = "game-over"
-                    
+                        is_winner = self.grid.check_win() # If not a bomb, check if this was the winning move.
+                        if is_winner:
+                            self.state = "game-win"
+                            self.layout.fill(DARKGREEN)
+                            self.draw_hud()
+                            self.draw_label()
+                            self.grid.draw(self.layout)
+                            self.grid.reveal_bombs()
+                            self.game_win_page()
                 elif self.state == "game-over":
                     self.layout.fill(DARKGREEN)
                     self.draw_hud()
@@ -168,7 +175,6 @@ class Game:
                         #     self.isGameActive = False
                         # elif menu.collidepoint(mouse_pos):
                         #     self.state = "front-page"
-            
             pygame.display.update()
         
         pygame.quit()
@@ -208,3 +214,12 @@ class Game:
         # self.layout.blit(menu_button_title, menu_button_title.get_rect(center=menu_button.center))
 
         return retry_rect
+    def game_win_page(self):
+        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        overlay.fill((100, 100, 100, 100))
+        self.layout.blit(overlay, (0, 0))
+
+        font = pygame.font.SysFont("Verdana", 55, bold=True)
+        text = font.render("You Won!", True, BLACK)
+        text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+        self.layout.blit(text, text_rect)

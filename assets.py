@@ -133,3 +133,14 @@ class Grid:
             for cell in row:
                 if cell.type == "B":
                     cell.revealed = True
+    def check_win(self):
+        count_revealed = 0
+        for row in self.grid_list:
+            for cell in row:
+                if cell.revealed == True:
+                    if cell.type != "B":
+                        count_revealed+=1
+        if count_revealed == (100 - self.bomb_amount):
+            return True
+        else:
+            return False
