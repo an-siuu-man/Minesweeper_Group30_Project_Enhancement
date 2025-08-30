@@ -22,8 +22,8 @@ class Game:
         pygame.mixer.music.load('Assets/game-music.wav')
         pygame.mixer.music.set_volume(0.4)
         pygame.mixer.music.play(-1)
-        self.game_over_sound = pygame.mixer.Sound("Assets/game-lose-music.wav")
-        self.game_win_sound = pygame.mixer.Sound("Assets/game-win-music.wav")
+        self.game_over_sound = pygame.mixer.Sound("Assets/game-lose-music.wav") # Add game losing music
+        self.game_win_sound = pygame.mixer.Sound("Assets/game-win-music.wav") # Add game winning music
         pygame.mixer.init()
 
     def front_page(self):
