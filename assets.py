@@ -125,8 +125,7 @@ class Grid:
             if self.grid_list[bomb_x_coord][bomb_y_coord].type == "E":
                 self.grid_list[bomb_x_coord][bomb_y_coord].type = "B"
                 self.grid_list[bomb_x_coord][bomb_y_coord].image = bomb_cell_1 if (bomb_x_coord + bomb_y_coord) % 2 == 0 else bomb_cell_2
-
-            planted_bombs += 1
+                planted_bombs += 1
         
         self.bombs_generated = True
     def reveal_bombs(self):
