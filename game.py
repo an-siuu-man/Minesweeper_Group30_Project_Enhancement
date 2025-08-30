@@ -12,6 +12,7 @@ class Game:
         self.timer = pygame.time.Clock()
         self.isGameActive = True
         self.grid = None
+        self.gameover_click = False
         # self.grid.display_board()
         self.state = "front-page"
         self.bomb_amount = 10 # Default
@@ -100,6 +101,7 @@ class Game:
                     self.isGameActive = False
 
                 if self.state == "front-page":
+                    self.front_page()
                     if action.type == pygame.MOUSEBUTTONDOWN:
                         mouse_pos = pygame.mouse.get_pos()
                         button_pos, left_arrow, right_arrow = self.front_page()
@@ -116,6 +118,10 @@ class Game:
 
 
                 elif self.state == "play":
+                    self.layout.fill(DARKGREEN)
+                    self.draw_hud()
+                    self.draw_label()
+                    self.grid.draw(self.layout)
                     if action.type == pygame.MOUSEBUTTONDOWN:
                         mx, my = pygame.mouse.get_pos()
                         row, col = (my - PADDING) // CELLSIZE, (mx - PADDING) // CELLSIZE
@@ -144,24 +150,25 @@ class Game:
 
                         if cell.type == "B":
                             self.state = "game-over"
-                            #print("Game Over!")
-                        #else:
-                            #cell.revealed = True
-            if self.state == "front-page":
-                self.front_page()
-            elif self.state == "play":
-                self.layout.fill(DARKGREEN)
-                self.draw_hud()
-                self.draw_label()
-                self.grid.draw(self.layout)
-                # self.grid_lines()
-            elif self.state == "game-over":
-                self.layout.fill(DARKGREEN)
-                self.draw_hud()
-                self.draw_label()
-                self.grid.draw(self.layout)
-                self.grid.reveal_bombs()
-                self.game_over_page()
+                    
+                elif self.state == "game-over":
+                    self.layout.fill(DARKGREEN)
+                    self.draw_hud()
+                    self.draw_label()
+                    self.grid.draw(self.layout)
+                    self.grid.reveal_bombs()
+                    retry, quit, menu = self.game_over_page()
+
+                    if action.type == pygame.MOUSEBUTTONDOWN:
+                        mouse_pos = pygame.mouse.get_pos()
+                        if retry.collidepoint(mouse_pos):
+                            self.grid = Grid(bomb_amount = self.bomb_amount)
+                            self.state = "play"
+                        elif quit.collidepoint(mouse_pos):
+                            self.isGameActive = False
+                        elif menu.collidepoint(mouse_pos):
+                            self.state = "front-page"
+            
             pygame.display.update()
         
         pygame.quit()
@@ -173,5 +180,28 @@ class Game:
 
         font = pygame.font.SysFont("Verdana", 55, bold=True)
         text = font.render("Game Over!", True, BLACK)
-        text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+        text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 80))
         self.layout.blit(text, text_rect)
+
+        retry_button_font = pygame.font.SysFont("Verdana", 30, bold=True)
+        retry_button_title = retry_button_font.render("Retry", True, WHITE)
+        retry_button = pygame.Rect(0, 0, 220, 60)
+        retry_button.center = (WIDTH // 2, HEIGHT // 2)
+        pygame.draw.rect(self.layout, LIGHTGREEN, retry_button, border_radius=15)
+        self.layout.blit(retry_button_title, retry_button_title.get_rect(center=retry_button.center))
+
+        quit_button_font = pygame.font.SysFont("Verdana", 30, bold=True)
+        quit_button_title = quit_button_font.render("Quit", True, WHITE)
+        quit_button = pygame.Rect(0, 0, 220, 60)
+        quit_button.center = (WIDTH // 2, HEIGHT // 2 + 80)
+        pygame.draw.rect(self.layout, LIGHTGREEN, quit_button, border_radius=15)
+        self.layout.blit(quit_button_title, quit_button_title.get_rect(center=quit_button.center))
+
+        menu_button_font = pygame.font.SysFont("Verdana", 30, bold=True)
+        menu_button_title = menu_button_font.render("Menu", True, WHITE)
+        menu_button = pygame.Rect(0, 0, 220, 60)
+        menu_button.center = (WIDTH // 2, HEIGHT //2 + 160)
+        pygame.draw.rect(self.layout, LIGHTGREEN, menu_button, border_radius=15)
+        self.layout.blit(menu_button_title, menu_button_title.get_rect(center=menu_button.center))
+
+        return retry_button, quit_button, menu_button
