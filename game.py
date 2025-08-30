@@ -94,7 +94,7 @@ class Game:
             self.layout.blit(text, text_rect)
 
     def play_game(self):
-        while self.isGameActive:
+        while (self.isGameActive or self.state == "game-win"):
             self.timer.tick(60)
             for action in pygame.event.get():
                 if action.type == pygame.QUIT:
@@ -147,28 +147,36 @@ class Game:
                                 # can't uncover a flagged cell
                                 continue
                             cell.revealed = True
-
                         if cell.type == "B":
                             self.state = "game-over"
-                    
+                        is_winner = self.grid.check_win() # If not a bomb, check if this was the winning move.
+                        if is_winner:
+                            self.state = "game-win"
                 elif self.state == "game-over":
                     self.layout.fill(DARKGREEN)
                     self.draw_hud()
                     self.draw_label()
                     self.grid.draw(self.layout)
                     self.grid.reveal_bombs()
-                    retry, quit, menu = self.game_over_page()
+                    retry = self.game_over_page()
 
                     if action.type == pygame.MOUSEBUTTONDOWN:
                         mouse_pos = pygame.mouse.get_pos()
                         if retry.collidepoint(mouse_pos):
                             self.grid = Grid(bomb_amount = self.bomb_amount)
-                            self.state = "play"
-                        elif quit.collidepoint(mouse_pos):
-                            self.isGameActive = False
-                        elif menu.collidepoint(mouse_pos):
                             self.state = "front-page"
-            
+                elif self.state == "game-win":
+                    self.layout.fill(DARKGREEN)
+                    self.draw_hud()
+                    self.draw_label()
+                    self.grid.draw(self.layout)
+                    # self.grid.reveal_bombs()
+                    retry = self.game_win_page()
+                    if action.type == pygame.MOUSEBUTTONDOWN:
+                        mouse_pos = pygame.mouse.get_pos()
+                        if retry.collidepoint(mouse_pos):
+                            self.grid = Grid(bomb_amount = self.bomb_amount)
+                            self.state = "front-page"
             pygame.display.update()
         
         pygame.quit()
@@ -180,28 +188,37 @@ class Game:
 
         font = pygame.font.SysFont("Verdana", 55, bold=True)
         text = font.render("Game Over!", True, BLACK)
-        text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 80))
+        text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 20))
         self.layout.blit(text, text_rect)
 
-        retry_button_font = pygame.font.SysFont("Verdana", 30, bold=True)
-        retry_button_title = retry_button_font.render("Retry", True, WHITE)
-        retry_button = pygame.Rect(0, 0, 220, 60)
-        retry_button.center = (WIDTH // 2, HEIGHT // 2)
-        pygame.draw.rect(self.layout, LIGHTGREEN, retry_button, border_radius=15)
-        self.layout.blit(retry_button_title, retry_button_title.get_rect(center=retry_button.center))
+        retry_image = pygame.image.load("Assets/Retry.png").convert_alpha()
+        retry_image_scaled = pygame.transform.scale(retry_image, (60, 60))
+        retry_circle_layer = pygame.Surface((60, 60), pygame.SRCALPHA)
+        pygame.draw.circle(retry_circle_layer, (255, 255, 255, 255), (30, 30), 30)
+        retry_circle_image = retry_image_scaled.copy()
+        retry_circle_image.blit(retry_circle_layer, (0, 0), special_flags=pygame.BLEND_RGBA_MIN)
 
-        quit_button_font = pygame.font.SysFont("Verdana", 30, bold=True)
-        quit_button_title = quit_button_font.render("Quit", True, WHITE)
-        quit_button = pygame.Rect(0, 0, 220, 60)
-        quit_button.center = (WIDTH // 2, HEIGHT // 2 + 80)
-        pygame.draw.rect(self.layout, LIGHTGREEN, quit_button, border_radius=15)
-        self.layout.blit(quit_button_title, quit_button_title.get_rect(center=quit_button.center))
+        retry_rect = retry_circle_image.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 60))
+        self.layout.blit(retry_circle_image, retry_rect)
 
-        menu_button_font = pygame.font.SysFont("Verdana", 30, bold=True)
-        menu_button_title = menu_button_font.render("Menu", True, WHITE)
-        menu_button = pygame.Rect(0, 0, 220, 60)
-        menu_button.center = (WIDTH // 2, HEIGHT //2 + 160)
-        pygame.draw.rect(self.layout, LIGHTGREEN, menu_button, border_radius=15)
-        self.layout.blit(menu_button_title, menu_button_title.get_rect(center=menu_button.center))
+        return retry_rect
+    def game_win_page(self):
+        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        overlay.fill((100, 100, 100, 100))
+        self.layout.blit(overlay, (0, 0))
 
-        return retry_button, quit_button, menu_button
+        font = pygame.font.SysFont("Verdana", 55, bold=True)
+        text = font.render("YOU WIN!", True, BLACK)
+        text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 20))
+        self.layout.blit(text, text_rect)
+
+        retry_image = pygame.image.load("Assets/Retry.png").convert_alpha()
+        retry_image_scaled = pygame.transform.scale(retry_image, (60, 60))
+        retry_circle_layer = pygame.Surface((60, 60), pygame.SRCALPHA)
+        pygame.draw.circle(retry_circle_layer, (255, 255, 255, 255), (30, 30), 30)
+        retry_circle_image = retry_image_scaled.copy()
+        retry_circle_image.blit(retry_circle_layer, (0, 0), special_flags=pygame.BLEND_RGBA_MIN)
+
+        retry_rect = retry_circle_image.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 60))
+        self.layout.blit(retry_circle_image, retry_rect)
+        return retry_rect
