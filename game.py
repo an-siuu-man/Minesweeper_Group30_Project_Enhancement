@@ -12,6 +12,7 @@ class Game:
         self.timer = pygame.time.Clock()
         self.isGameActive = True
         self.grid = None
+        self.gameover_click = False
         # self.grid.display_board()
         self.state = "front-page"
         self.bomb_amount = 10 # Default
@@ -100,6 +101,7 @@ class Game:
                     self.isGameActive = False
 
                 if self.state == "front-page":
+                    self.front_page()
                     if action.type == pygame.MOUSEBUTTONDOWN:
                         mouse_pos = pygame.mouse.get_pos()
                         button_pos, left_arrow, right_arrow = self.front_page()
@@ -116,6 +118,10 @@ class Game:
 
 
                 elif self.state == "play":
+                    self.layout.fill(DARKGREEN)
+                    self.draw_hud()
+                    self.draw_label()
+                    self.grid.draw(self.layout)
                     if action.type == pygame.MOUSEBUTTONDOWN:
                         mx, my = pygame.mouse.get_pos()
                         row, col = (my - PADDING) // CELLSIZE, (mx - PADDING) // CELLSIZE
@@ -174,7 +180,7 @@ class Game:
 
         font = pygame.font.SysFont("Verdana", 55, bold=True)
         text = font.render("Game Over!", True, BLACK)
-        text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+        text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 80))
         self.layout.blit(text, text_rect)
 
         retry_button_font = pygame.font.SysFont("Verdana", 30, bold=True)
