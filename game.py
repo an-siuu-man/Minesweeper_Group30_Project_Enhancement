@@ -157,17 +157,17 @@ class Game:
                     self.draw_label()
                     self.grid.draw(self.layout)
                     self.grid.reveal_bombs()
-                    retry, quit, menu = self.game_over_page()
+                    retry = self.game_over_page()
 
                     if action.type == pygame.MOUSEBUTTONDOWN:
                         mouse_pos = pygame.mouse.get_pos()
                         if retry.collidepoint(mouse_pos):
                             self.grid = Grid(bomb_amount = self.bomb_amount)
                             self.state = "play"
-                        elif quit.collidepoint(mouse_pos):
-                            self.isGameActive = False
-                        elif menu.collidepoint(mouse_pos):
-                            self.state = "front-page"
+                        # elif quit.collidepoint(mouse_pos):
+                        #     self.isGameActive = False
+                        # elif menu.collidepoint(mouse_pos):
+                        #     self.state = "front-page"
             
             pygame.display.update()
         
@@ -180,28 +180,31 @@ class Game:
 
         font = pygame.font.SysFont("Verdana", 55, bold=True)
         text = font.render("Game Over!", True, BLACK)
-        text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 80))
+        text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
         self.layout.blit(text, text_rect)
 
-        retry_button_font = pygame.font.SysFont("Verdana", 30, bold=True)
-        retry_button_title = retry_button_font.render("Retry", True, WHITE)
-        retry_button = pygame.Rect(0, 0, 220, 60)
-        retry_button.center = (WIDTH // 2, HEIGHT // 2)
-        pygame.draw.rect(self.layout, LIGHTGREEN, retry_button, border_radius=15)
-        self.layout.blit(retry_button_title, retry_button_title.get_rect(center=retry_button.center))
+        retry_image = pygame.image.load("Assets/Retry.png").convert_alpha()
+        retry_image_scaled = pygame.transform.scale(retry_image, (60, 60))
+        retry_circle_layer = pygame.Surface((60, 60), pygame.SRCALPHA)
+        pygame.draw.circle(retry_circle_layer, (255, 255, 255, 255), (30, 30), 30)
+        retry_circle_image = retry_image_scaled.copy()
+        retry_circle_image.blit(retry_circle_layer, (0, 0), special_flags=pygame.BLEND_RGBA_MIN)
 
-        quit_button_font = pygame.font.SysFont("Verdana", 30, bold=True)
-        quit_button_title = quit_button_font.render("Quit", True, WHITE)
-        quit_button = pygame.Rect(0, 0, 220, 60)
-        quit_button.center = (WIDTH // 2, HEIGHT // 2 + 80)
-        pygame.draw.rect(self.layout, LIGHTGREEN, quit_button, border_radius=15)
-        self.layout.blit(quit_button_title, quit_button_title.get_rect(center=quit_button.center))
+        retry_rect = retry_circle_image.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 100))
+        self.layout.blit(retry_circle_image, retry_rect)
 
-        menu_button_font = pygame.font.SysFont("Verdana", 30, bold=True)
-        menu_button_title = menu_button_font.render("Menu", True, WHITE)
-        menu_button = pygame.Rect(0, 0, 220, 60)
-        menu_button.center = (WIDTH // 2, HEIGHT //2 + 160)
-        pygame.draw.rect(self.layout, LIGHTGREEN, menu_button, border_radius=15)
-        self.layout.blit(menu_button_title, menu_button_title.get_rect(center=menu_button.center))
+        # quit_button_font = pygame.font.SysFont("Verdana", 30, bold=True)
+        # quit_button_title = quit_button_font.render("Quit", True, WHITE)
+        # quit_button = pygame.Rect(0, 0, 220, 60)
+        # quit_button.center = (WIDTH // 2, HEIGHT // 2 + 80)
+        # pygame.draw.rect(self.layout, LIGHTGREEN, quit_button, border_radius=15)
+        # self.layout.blit(quit_button_title, quit_button_title.get_rect(center=quit_button.center))
 
-        return retry_button, quit_button, menu_button
+        # menu_button_font = pygame.font.SysFont("Verdana", 30, bold=True)
+        # menu_button_title = menu_button_font.render("Menu", True, WHITE)
+        # menu_button = pygame.Rect(0, 0, 220, 60)
+        # menu_button.center = (WIDTH // 2, HEIGHT //2 + 160)
+        # pygame.draw.rect(self.layout, LIGHTGREEN, menu_button, border_radius=15)
+        # self.layout.blit(menu_button_title, menu_button_title.get_rect(center=menu_button.center))
+
+        return retry_rect
