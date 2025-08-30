@@ -144,24 +144,25 @@ class Game:
 
                         if cell.type == "B":
                             self.state = "game-over"
-                            #print("Game Over!")
-                        #else:
-                            #cell.revealed = True
-            if self.state == "front-page":
-                self.front_page()
-            elif self.state == "play":
-                self.layout.fill(DARKGREEN)
-                self.draw_hud()
-                self.draw_label()
-                self.grid.draw(self.layout)
-                # self.grid_lines()
-            elif self.state == "game-over":
-                self.layout.fill(DARKGREEN)
-                self.draw_hud()
-                self.draw_label()
-                self.grid.draw(self.layout)
-                self.grid.reveal_bombs()
-                self.game_over_page()
+                    
+                elif self.state == "game-over":
+                    self.layout.fill(DARKGREEN)
+                    self.draw_hud()
+                    self.draw_label()
+                    self.grid.draw(self.layout)
+                    self.grid.reveal_bombs()
+                    retry, quit, menu = self.game_over_page()
+
+                    if action.type == pygame.MOUSEBUTTONDOWN:
+                        mouse_pos = pygame.mouse.get_pos()
+                        if retry.collidepoint(mouse_pos):
+                            self.grid = Grid(bomb_amount = self.bomb_amount)
+                            self.state = "play"
+                        elif quit.collidepoint(mouse_pos):
+                            self.isGameActive = False
+                        elif menu.collidepoint(mouse_pos):
+                            self.state = "front-page"
+            
             pygame.display.update()
         
         pygame.quit()
