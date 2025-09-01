@@ -48,7 +48,7 @@ bomb_cell_2 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"
 unknown_cell_1 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellUnknown_1.png")), (CELLSIZE, CELLSIZE))
 unknown_cell_2 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellUnknown_2.png")), (CELLSIZE, CELLSIZE))
 no_bomb_cell_1 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellNoBomb_1.png")), (CELLSIZE, CELLSIZE))
-no_bomb_cell_1 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellNoBomb_2.png")), (CELLSIZE, CELLSIZE))
+no_bomb_cell_2 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellNoBomb_2.png")), (CELLSIZE, CELLSIZE))
 
 #Background Image
 background_img = pygame.transform.scale(pygame.image.load("Assets/Background.png"), (WIDTH, HEIGHT))
