@@ -118,12 +118,12 @@ class Game:
                             self.grid.display_board()
                             self.state = "play"
 
-
                 elif self.state == "play":
                     self.layout.fill(DARKGREEN)
                     self.draw_hud()
                     self.draw_label()
                     self.grid.draw(self.layout)
+
                     if action.type == pygame.MOUSEBUTTONDOWN:
                         mx, my = pygame.mouse.get_pos()
                         row, col = (my - PADDING) // CELLSIZE, (mx - PADDING) // CELLSIZE
@@ -185,44 +185,30 @@ class Game:
         
         pygame.quit()
 
+    def game_ended_page (self, text):
+        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        overlay.fill((100, 100, 100, 100))
+        self.layout.blit(overlay, (0, 0))
+
+        font = pygame.font.SysFont("Verdana", 55, bold=True)
+        text = font.render(text, True, BLACK)
+        text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 20))
+        self.layout.blit(text, text_rect)
+
+        retry_image = pygame.image.load("Assets/Retry.png").convert_alpha()
+        retry_image_scaled = pygame.transform.scale(retry_image, (60, 60))
+        retry_circle_layer = pygame.Surface((60, 60), pygame.SRCALPHA)
+        pygame.draw.circle(retry_circle_layer, (255, 255, 255, 255), (30, 30), 30)
+        retry_circle_image = retry_image_scaled.copy()
+        retry_circle_image.blit(retry_circle_layer, (0, 0), special_flags=pygame.BLEND_RGBA_MIN)
+
+        retry_rect = retry_circle_image.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 60))
+        self.layout.blit(retry_circle_image, retry_rect)
+
+        return retry_rect
+    
     def game_over_page(self):
-        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        overlay.fill((100, 100, 100, 100))
-        self.layout.blit(overlay, (0, 0))
+        return self.game_ended_page("Game Over!")
 
-        font = pygame.font.SysFont("Verdana", 55, bold=True)
-        text = font.render("Game Over!", True, BLACK)
-        text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 20))
-        self.layout.blit(text, text_rect)
-
-        retry_image = pygame.image.load("Assets/Retry.png").convert_alpha()
-        retry_image_scaled = pygame.transform.scale(retry_image, (60, 60))
-        retry_circle_layer = pygame.Surface((60, 60), pygame.SRCALPHA)
-        pygame.draw.circle(retry_circle_layer, (255, 255, 255, 255), (30, 30), 30)
-        retry_circle_image = retry_image_scaled.copy()
-        retry_circle_image.blit(retry_circle_layer, (0, 0), special_flags=pygame.BLEND_RGBA_MIN)
-
-        retry_rect = retry_circle_image.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 60))
-        self.layout.blit(retry_circle_image, retry_rect)
-
-        return retry_rect
     def game_win_page(self):
-        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        overlay.fill((100, 100, 100, 100))
-        self.layout.blit(overlay, (0, 0))
-
-        font = pygame.font.SysFont("Verdana", 55, bold=True)
-        text = font.render("YOU WIN!", True, BLACK)
-        text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 20))
-        self.layout.blit(text, text_rect)
-
-        retry_image = pygame.image.load("Assets/Retry.png").convert_alpha()
-        retry_image_scaled = pygame.transform.scale(retry_image, (60, 60))
-        retry_circle_layer = pygame.Surface((60, 60), pygame.SRCALPHA)
-        pygame.draw.circle(retry_circle_layer, (255, 255, 255, 255), (30, 30), 30)
-        retry_circle_image = retry_image_scaled.copy()
-        retry_circle_image.blit(retry_circle_layer, (0, 0), special_flags=pygame.BLEND_RGBA_MIN)
-
-        retry_rect = retry_circle_image.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 60))
-        self.layout.blit(retry_circle_image, retry_rect)
-        return retry_rect
+        return self.game_ended_page("YOU WIN!")
