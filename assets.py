@@ -1,6 +1,7 @@
 import pygame
 from settings import *
 import random
+#TODO: Fix the way the row and cols are named/called.
 # Types: B = Bomb, E = Empty, N = Number
 class Cell:
     def __init__(self, x, y, image, type = "E", revealed=False, flagged=False):
@@ -130,10 +131,16 @@ class Grid:
         
         self.bombs_generated = True
 
-    def reveal_bombs(self):
+    def reveal_bombs(self, clicked_row, clicked_col):
+        print(clicked_row, clicked_col)
         for row in self.grid_list:
             for cell in row:
                 if cell.type == "B":
+                    if cell.x // CELLSIZE == clicked_col and cell.y // CELLSIZE == clicked_row:
+                        if (clicked_row+clicked_col) % 2 == 0:
+                            self.grid_list[clicked_row][clicked_col].image = exploded_cell_1
+                        else:
+                            self.grid_list[clicked_row][clicked_col].image = exploded_cell_2
                     cell.revealed = True
                     
     def check_win(self):
@@ -150,14 +157,7 @@ class Grid:
         
     def dig(self, x, y): 
         self.dug.append((x, y))
-        if self.grid_list[x][y].type == "B":
-            self.grid_list[x][y].revealed = True
-            if (x+y) % 2 == 0:  
-                self.grid_list[x][y].image = exploded_cell_1 
-            else: 
-                self.grid_list[x][y].image = exploded_cell_2
-            return False
-        elif self.grid_list[x][y].type == "N": 
+        if self.grid_list[x][y].type == "N": 
             self.grid_list[x][y].revealed = True
             return True 
         
