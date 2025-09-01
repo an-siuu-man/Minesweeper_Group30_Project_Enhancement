@@ -149,19 +149,19 @@ class Game:
                                 # can't uncover a flagged cell
                                 continue
                             if cell.type == "B":
-                                self.game_over_sound.play()
                                 self.state = "game-over"
+                                self.game_over_sound.play()
                             else:
                                 self.grid.dig(row,col)
                             if self.grid.check_win(): # If not a bomb, check if this was the winning move.
-                                self.game_win_sound.play()
                                 self.state = "game-win"
+                                self.game_win_sound.play()
                 elif self.state == "game-over":
+                    self.grid.reveal_bombs(row, col)
                     self.layout.fill(DARKGREEN)
                     self.draw_hud()
                     self.draw_label()
                     self.grid.draw(self.layout)
-                    self.grid.reveal_bombs(row, col)
                     retry = self.game_over_page()
 
                     if action.type == pygame.MOUSEBUTTONDOWN:
