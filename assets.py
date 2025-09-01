@@ -51,6 +51,7 @@ class Grid:
         self.numbers_generated = False
         self.mine_count = bomb_amount #total mines/bombs = total flags
         self.flags_placed = 0 #this tracks how many flags are placed
+        self.dug = [] #store values that are dug out 
 
     def flags_remaining(self):
         return self.mine_count - self.flags_placed
@@ -146,3 +147,27 @@ class Grid:
             return True
         else:
             return False
+        
+    def dig(self, x, y): 
+        self.dug.append((x, y))
+        if self.grid_list[x][y].type == "B":
+            self.grid_list[x][y].revealed = True
+            if (x+y) % 2 == 0:  
+                self.grid_list[x][y].image = exploded_cell_1 
+            else: 
+                self.grid_list[x][y].image = exploded_cell_2
+            return False
+        elif self.grid_list[x][y].type == "N": 
+            self.grid_list[x][y].revealed = True
+            return True 
+        
+        self.grid_list[x][y].revealed = True
+
+        for row in range(max(0, x-1), min(ROWS-1, x+1) +1):
+            for col in range(max(0, y-1), min(COLUMNS-1, y+1) +1): 
+                if (row, col) not in self.dug: 
+                    self.dig(row, col) 
+        return True 
+                
+
+

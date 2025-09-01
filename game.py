@@ -148,14 +148,22 @@ class Game:
                             if getattr(cell, "flagged", False):
                                 # can't uncover a flagged cell
                                 continue
-                            cell.revealed = True
-                        if cell.type == "B":
-                            self.game_over_sound.play()
-                            self.state = "game-over"
-                        is_winner = self.grid.check_win() # If not a bomb, check if this was the winning move.
-                        if is_winner:
-                            self.game_win_sound.play()
-                            self.state = "game-win"
+                            result = self.grid.dig(row,col)
+                            if not result:
+                                self.game_over_sound.play()
+                                self.state = "game-over"
+                            is_winner = self.grid.check_win() # If not a bomb, check if this was the winning move.
+                            if self.grid.check_win():  
+                                self.game_win_sound.play()
+                                self.state = "game-win"   
+        
+                        #if cell.type == "B":
+                            #self.game_over_sound.play()
+                            #self.state = "game-over"
+                        #is_winner = self.grid.check_win() # If not a bomb, check if this was the winning move.
+                        #if is_winner:
+                            #self.game_win_sound.play()
+                            #self.state = "game-win"
                 elif self.state == "game-over":
                     self.layout.fill(DARKGREEN)
                     self.draw_hud()
