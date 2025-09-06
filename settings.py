@@ -1,42 +1,31 @@
 import pygame
 import os
 
-#Colors 
+# Colors 
 BLACK = (0,0,0)
 WHITE = (255,255,255)
-RED = (255,0,0)
-LIGHTGREEN = (155, 210, 66) #Needed
-GREEN = (0,255,0)
-DARKGREEN = (74, 117, 44) #Needed
-BLUE = (0,0,255)
-DARKBLUE = (0,0,139)
-LIGHTBLUE = (173,216,230)
-YELLOW = (255,255,0)
-DARKGREY = (40,40,40)
-LIGHTGREY = (100,100,100)
-BGCOLOR = DARKGREEN
+LIGHTGREEN = (155, 210, 66)
+DARKGREEN = (74, 117, 44)
 
-#Game settings
+# Game settings
 CELLSIZE = 50
 ROWS = 10
 COLUMNS = 10
-BOMB_AMT = 10 #Need to update so user-sepecifed from 10 to 20 
 PADDING = 50
 GRID_WIDTH = CELLSIZE * ROWS
 GRID_HEIGHT = CELLSIZE * COLUMNS
-WIDTH = GRID_WIDTH + (2 * PADDING)
-HEIGHT = GRID_HEIGHT + (2 * PADDING)
-FPS = 60
+FULL_WIDTH = GRID_WIDTH + (2 * PADDING)
+FULL_HEIGHT = GRID_HEIGHT + (2 * PADDING)
 TITLE = "Minesweeper"
 
-#Import assets 
+# Import assets for number cells 1-8 
 cell_num_1 = []
 cell_num_2 = []
 for i in range(1,9):
     cell_num_1.append(pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"Cell{i}_1.png")), (CELLSIZE, CELLSIZE)))
     cell_num_2.append(pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"Cell{i}_2.png")), (CELLSIZE, CELLSIZE)))
 
-#Update asset names accordingly 
+# Import assets for other cell types: empty, exploded, flag, bomb, unknown, no bomb
 empty_cell_1 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellEmpty_1.png")), (CELLSIZE, CELLSIZE))
 empty_cell_2 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellEmpty_2.png")), (CELLSIZE, CELLSIZE))
 exploded_cell_1 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellExploded_1.png")), (CELLSIZE, CELLSIZE))
@@ -50,5 +39,5 @@ unknown_cell_2 = pygame.transform.scale(pygame.image.load(os.path.join("Assets",
 no_bomb_cell_1 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellNoBomb_1.png")), (CELLSIZE, CELLSIZE))
 no_bomb_cell_2 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", f"CellNoBomb_2.png")), (CELLSIZE, CELLSIZE))
 
-#Background Image
-background_img = pygame.transform.scale(pygame.image.load("Assets/Background.png"), (WIDTH, HEIGHT))
+# Import background image
+background_img = pygame.transform.scale(pygame.image.load("Assets/Background.png"), (FULL_WIDTH, FULL_HEIGHT))

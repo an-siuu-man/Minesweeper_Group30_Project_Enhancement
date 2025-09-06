@@ -2,35 +2,41 @@ import pygame
 from settings import *
 import random
 #TODO: Fix the way the row and cols are named/called.
-# Types: B = Bomb, E = Empty, N = Number
+
 class Cell:
-    def __init__(self, x, y, image, type = "E", revealed=False, flagged=False):
+    def __init__(self, x, y, image, type = "E", revealed = False, flagged = False):
+        '''
+        Initalizes cell object.
+        '''
         self.x = x * CELLSIZE
         self.y = y * CELLSIZE
         self.image = image
-        self.type = type
+        self.type = type # Types: B = Bomb, E = Empty, N = Number
         self.revealed = revealed
         self.flagged = flagged
 
     def draw(self, grid_surface):
+        '''
+        Draws the cell on the grid surface.
+        '''
         if self.revealed:
-            if not self.flagged: #Draw numbered cells
+            if not self.flagged:
+                # Draw numbered, bomb, empty, or exploded cell if revealed
                 grid_surface.blit(self.image, (self.x, self.y))
         else:
-        # COVERED: this will show a flag if flagged, otherwise the unknown tile
+            # Draw flagged if not revealed
             if self.flagged:
                 if ((self.x + self.y) // CELLSIZE) % 2 == 0:
                     grid_surface.blit(flag_cell_1, (self.x, self.y))
                 else:
                     grid_surface.blit(flag_cell_2, (self.x, self.y))
+                    
+            # Draw unknown cell if not revealed
             else:
                 if ((self.x + self.y) // CELLSIZE) % 2 == 0:
                     grid_surface.blit(unknown_cell_1, (self.x, self.y))
                 else:
                     grid_surface.blit(unknown_cell_2, (self.x, self.y))
-
-    def __repr__(self):
-        return self.type
 
 class Grid:
     def __init__(self, bomb_amount = 10):
@@ -75,13 +81,21 @@ class Grid:
         print("")
 
     def generate_numbers(self):
+        '''
+        Generates numbers for all cells that are not bombs based on adjacent bombs.
+        These act as clues for the player.
+        '''
         for x in range(ROWS):
             for y in range(COLUMNS):
                 if self.grid_list[x][y].type != "B":
+                    # If cell is not a bomb, check adjacent cells for bombs
                     total_bombs = self.check_adj_cells(x, y)
+
                     if total_bombs > 0:
+                        # If there are adjacent bombs, set the cell image to the corresponding number image and change type to "N"
                         self.grid_list[x][y].image = cell_num_1[total_bombs - 1] if (x + y) % 2 == 0 else cell_num_2[total_bombs - 1]
                         self.grid_list[x][y].type = "N"
+
         self.numbers_generated = True
 
     @staticmethod
@@ -95,10 +109,12 @@ class Grid:
     def check_adj_cells(self, x, y):
         '''
         Checks the adjacent 8 cells around a given cell and calculates the cell number.
+        Returns the total number of bombs in adjacent cells.
         '''
         total_bombs = 0
         #Checks adjacent cells starting from the top left corner (-1, -1).
         for x_offset in range(-1, 2):
+
             for y_offset in range(-1, 2):
                 adj_x = x + x_offset
                 adj_y = y + y_offset
@@ -112,7 +128,7 @@ class Grid:
         for row in self.grid_list:
             for cell in row:
                 cell.draw(self.grid_surface)
-        # Need a HUD_HEIGHT for the header/menu banner part.
+
         screen.blit(self.grid_surface, (PADDING, PADDING))
 
     def generate_bombs(self, safe_row, safe_col):
@@ -139,14 +155,17 @@ class Grid:
                         cell.image = no_bomb_cell_1
                     else:
                         cell.image = no_bomb_cell_2
+
                     cell.flagged = False
                     cell.revealed = True
+
                 elif cell.type == "B":
                     if cell.x // CELLSIZE == clicked_col and cell.y // CELLSIZE == clicked_row:
                         if (clicked_row+clicked_col) % 2 == 0:
                             self.grid_list[clicked_row][clicked_col].image = exploded_cell_1
                         else:
                             self.grid_list[clicked_row][clicked_col].image = exploded_cell_2
+
                     cell.revealed = True
                     
     def check_win(self):
@@ -155,7 +174,8 @@ class Grid:
             for cell in row:
                 if cell.revealed == True:
                     if cell.type != "B":
-                        count_revealed+=1
+                        count_revealed += 1
+
         if count_revealed == (100 - self.bomb_amount):
             return True
         else:
@@ -163,17 +183,17 @@ class Grid:
         
     def dig(self, x, y): 
         self.dug.append((x, y))
+
         if self.grid_list[x][y].type == "N": 
             self.grid_list[x][y].revealed = True
             return True 
         
         self.grid_list[x][y].revealed = True
 
-        for row in range(max(0, x-1), min(ROWS-1, x+1) +1):
-            for col in range(max(0, y-1), min(COLUMNS-1, y+1) +1): 
+        for row in range(max(0, x - 1), min(ROWS - 1, x + 1) + 1):
+            for col in range(max(0, y - 1), min(COLUMNS - 1, y + 1) + 1): 
                 if (row, col) not in self.dug: 
                     self.dig(row, col) 
-        return True 
-                
-
-
+                    
+        return True
+    
