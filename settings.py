@@ -1,13 +1,13 @@
 """
     Program Name: settings.py
-    Authors:
-    Creation Date:
-    Last modified:
-    Purpose:
-    Inputs:
-    Outputs:
-    Collaborators:
-    Sources:
+    Authors: Nikka Vuong, Anna Lin, Sophia Jacob, Kusuma Murthy, Nimra Syed
+    Creation Date: 8/29/2025
+    Last modified: 9/15/2025
+    Purpose: To include all the game settings, including color scheme and sizing.
+    Inputs: N/A
+    Outputs: N/A
+    Collaborators: N/A
+    Sources: N/A
 """
 import pygame
 import os

@@ -1,13 +1,13 @@
 """
     Program Name: cell.py
-    Authors:
-    Creation Date:
-    Last modified:
-    Purpose:
-    Inputs:
-    Outputs:
-    Collaborators:
-    Sources:
+    Authors: Anna Lin, Sophia Jacob, Kusuma Murthy, Nikka Voung, Nimra Syed
+    Creation Date: 8/29/2025
+    Last modified: 9/15/2025
+    Purpose: To create a Cell class that will house all the attributes tied to each cell in the board.
+    Inputs: Cell position.
+    Outputs: N/A
+    Collaborators: N/A
+    Sources: N/A
 """
 
 from settings import *

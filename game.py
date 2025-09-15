@@ -1,13 +1,13 @@
 """
     Program Name: game.py
     Authors: Kusuma Murthy, Sophia Jacob, Anna Lin, Nikka Voung, Nimra Syed
-    Creation Date:
-    Last modified:
-    Purpose:
-    Inputs:
-    Outputs:
-    Collaborators:
-    Sources:
+    Creation Date: 8/29/2025
+    Last modified: 9/15/2025
+    Purpose: To create a fully functioning game board and the interactive UI.
+    Inputs: Bomb amount that the user wants and clicks/actions for the cells
+    Outputs: An updating game board based on the user's actions to uncover and reveal cells and play the game.
+    Collaborators: N/A
+    Sources: N/A
 """
 
 import pygame

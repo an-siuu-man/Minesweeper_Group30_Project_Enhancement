@@ -1,13 +1,13 @@
 """
     Program Name: grid.py
-    Authors:
-    Creation Date:
-    Last modified:
-    Purpose:
-    Inputs:
-    Outputs:
-    Collaborators:
-    Sources:
+    Authors: Sophia Jacob, Anna Lin, Nikka Voung, Nimra Syed, Kusuma Murthy
+    Creation Date: 8/29/2025
+    Last modified: 9/15/2025
+    Purpose: To create the Grid class with all its attributes and functions like revealing and setting bombs.
+    Inputs: Number of bombs to be generated and the game board.
+    Outputs: N/A
+    Collaborators: N/A
+    Sources: N/A
 """
 
 import pygame
