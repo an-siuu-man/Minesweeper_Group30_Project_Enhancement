@@ -160,17 +160,20 @@ class Grid:
             return False
         
     def dig(self, x, y): 
-        self.dug.append((x, y))
+        """
+        Dig function reveals numbered cells and recursively reveals neighboring cells of an empty cell.  
+        """
+        self.dug.append((x, y)) # Add cell to dug list once clicked on
 
-        if self.grid_list[x][y].type == "N": 
-            self.grid_list[x][y].revealed = True
+        if self.grid_list[x][y].type == "N": # If the cell is numbered, reveal only the cell and return 
+            self.grid_list[x][y].revealed = True 
             return True 
         
-        self.grid_list[x][y].revealed = True
+        self.grid_list[x][y].revealed = True # If the cell is empty, reveal it 
 
-        for row in range(max(0, x - 1), min(ROWS - 1, x + 1) + 1):
+        for row in range(max(0, x - 1), min(ROWS - 1, x + 1) + 1): # Check all neighboring cells to see if they need to be dug
             for col in range(max(0, y - 1), min(COLUMNS - 1, y + 1) + 1): 
-                if (row, col) not in self.dug: 
+                if (row, col) not in self.dug: # If neighbor cell hasn't been dug, recursively dig it
                     self.dig(row, col) 
                     
         return True
