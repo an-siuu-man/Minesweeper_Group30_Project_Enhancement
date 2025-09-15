@@ -9,6 +9,7 @@
     Collaborators:
     Sources:
 """
+
 import pygame
 from settings import * # Imports global constants and settings
 from cell import * # Import cell-related logic for Minesweeper

@@ -9,6 +9,7 @@
     Collaborators:
     Sources:
 """
+
 import pygame
 from settings import *
 from cell import *

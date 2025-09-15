@@ -9,6 +9,7 @@
     Collaborators:
     Sources:
 """
+
 from settings import *
 class Cell:
     def __init__(self, x, y, image, type = "E", revealed = False, flagged = False):
@@ -50,3 +51,4 @@ class Cell:
         Printed representation of the cell for debugging.
         """
         return self.type
+        
