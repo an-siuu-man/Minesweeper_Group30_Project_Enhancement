@@ -1,3 +1,14 @@
+"""
+    Program Name: settings.py
+    Authors:
+    Creation Date:
+    Last modified:
+    Purpose:
+    Inputs:
+    Outputs:
+    Collaborators:
+    Sources:
+"""
 import pygame
 import os
 

@@ -1,6 +1,18 @@
+"""
+    Program Name: game.py
+    Authors:
+    Creation Date:
+    Last modified:
+    Purpose:
+    Inputs:
+    Outputs:
+    Collaborators:
+    Sources:
+"""
 import pygame
 from settings import *
-from assets import *
+from cell import *
+from grid import *
 
 class Game:
     def __init__(self):
