@@ -38,25 +38,25 @@ class Grid:
         self.flags_placed = 0 #this tracks how many flags are placed
         self.dug = [] #store values that are dug out 
 
-    def flags_remaining(self):
+    def flags_remaining(self): #Compute remaining flags as total mines minus how many flags are on the board
         return self.mine_count - self.flags_placed
     
-    def toggle_flag(self, r, c):
-        cell = self.grid_list[r][c]
-        if cell.revealed:
+    def toggle_flag(self, r, c): 
+        cell = self.grid_list[r][c] #Add or remove a flag on cell (r,c) if allowed
+        if cell.revealed: #You can't flag a cell that is already revealed
             return
-        if cell.flagged:
+        if cell.flagged: #Unflag - flip the flag off and then decrement the flags_placed
             cell.flagged = False
-            self.flags_placed = max(0, self.flags_placed - 1)
+            self.flags_placed = max(0, self.flags_placed - 1) #We use max here to ensure the flags_placed never goes negative due to edge cases
         else:
-            if self.flags_remaining() > 0:
+            if self.flags_remaining() > 0: #Only place a new flag if we still have flags available
                 cell.flagged = True
                 self.flags_placed += 1
     
     def display_board(self):
-        for row in self.grid_list:
+        for row in self.grid_list: #Each row in the grid_list should have a printable format for cells
            print(row)
-        print("")
+        print("") #Added a blank line for readability between prints
 
     def generate_numbers(self):
         '''
@@ -103,11 +103,12 @@ class Grid:
         return total_bombs
 
     def draw(self, screen):
+        #Draw each cell onto the off-screen grid surface first(this is to prevent flicker)
         for row in self.grid_list:
             for cell in row:
-                cell.draw(self.grid_surface)
+                cell.draw(self.grid_surface) #each cell knows how to draw itself
 
-        screen.blit(self.grid_surface, (PADDING, PADDING))
+        screen.blit(self.grid_surface, (PADDING, PADDING)) #Blit the composed grid surface onto the main window at a padded offset
 
     def generate_bombs(self, safe_row, safe_col):
         planted_bombs = 0
