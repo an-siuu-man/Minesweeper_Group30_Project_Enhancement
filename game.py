@@ -14,11 +14,11 @@ from settings import * # Imports global constants and settings
 from cell import * # Import cell-related logic for Minesweeper
 from grid import * # Import grid logic for Minesweeper
 
-'''
-Initializes the game window, settings, and audio.
-'''
 class Game:
     def __init__(self):
+        """
+        Initializes the game window, settings, and audio.
+        """
         pygame.init() # Initialize the pygame
     
         # This following block sets up the display window
@@ -35,19 +35,19 @@ class Game:
         self.bomb_min = 10 # Default lower limit for bomb selection
         self.bomb_max = 20 # Default upper limit for bomb selection
 
-         # This block of code is related to the game's Audio
+        # This block of code is related to the game's Audio
         pygame.mixer.init()
         pygame.mixer.music.load('Assets/game-music.wav') # Background music
-        pygame.mixer.music.set_volume(0.4)
+        pygame.mixer.music.set_volume(0.1)
         pygame.mixer.music.play(-1) # This will allow the background music to loop forever
         self.game_over_sound = pygame.mixer.Sound("Assets/game-lose-music.wav") # Add game losing music
         self.game_win_sound = pygame.mixer.Sound("Assets/game-win-music.wav") # Add game winning music
         pygame.mixer.init()
 
-    '''
-    Display the front page menu where the player can see the game title, select the number of bomns, and start the game.
-    '''
     def front_page(self):
+        """
+        Display the front page menu where the player can see the game title, select the number of bomns, and start the game.
+        """
         # This is the background and title
         self.layout.blit(background_img, (0, 0))
         title_font = pygame.font.SysFont("Verdana", 55, bold = True)
@@ -78,10 +78,10 @@ class Game:
 
         return button_pos, left_arrow, right_arrow # Returns the button rectangles for click detection
 
-    '''
-    Displays heads up display (HUD) which includes the flags left, mines left, and game status.
-    '''
     def draw_hud(self):
+        """
+        Displays heads up display (HUD) which includes the flags left, mines left, and game status.
+        """
         if hasattr(self.grid, "flags_remaining"):
             # Display the flags left
             hud_font = pygame.font.SysFont("Verdana", 16, bold = True)
@@ -101,10 +101,10 @@ class Game:
             text_rect = mines_text.get_rect(center = (self.layout.get_width() - (mines_text.get_width() // 2) - 25, PADDING // 2))
             self.layout.blit(mines_text, text_rect)
 
-    '''
-    Draws the row and column labels, around the grid. Columbs are denoted by letters (A-J) and Rows are denoted by numbers (1-10).
-    '''
-    def draw_label(self): # Draws row numbers (1-N) and column leters (A-N) around the grid
+    def draw_label(self):
+        """
+        Draws the row and column labels, around the grid. Columns are denoted by letters (A-J) and rows are denoted by numbers (1-10).
+        """
         font = pygame.font.SysFont("Verdana", 15, bold = True)
 
         # Draw column labels (A-J)
@@ -127,6 +127,10 @@ class Game:
             )
             self.layout.blit(text, text_rect)
 
+    def play_game(self):
+        """
+        Main game loop that handles game states, user inputs, and rendering.
+        """
         # This is the main game loop
         while (self.isGameActive or self.state == "game-win"):
             self.timer.tick(60) # Runs the loop at 60 FPS
@@ -164,7 +168,7 @@ class Game:
                        # Get grid cordinates from mouse position
                         mx, my = pygame.mouse.get_pos()
                         row, col = (my - PADDING) // CELLSIZE, (mx - PADDING) // CELLSIZE
-                        if my < PADDING: # Ignore the clicks above the grid
+                        if my < PADDING or mx < PADDING or row >= ROWS or col >= COLUMNS: # If click is outside the grid, ignore
                             continue
                         cell = self.grid.grid_list[row][col]
                         
@@ -231,10 +235,10 @@ class Game:
         
         pygame.quit() # Ends the game when the loop exists
 
-    '''
-    Draws the overlay show when the game ends and it also shows the win, loose and retry button/screens.
-    '''
     def game_ended_page (self, text):
+        """
+        Draws the overlay show when the game ends and it also shows the win, loose and retry button/screens.
+        """
         # Creates the transparent overlay
         overlay = pygame.Surface((FULL_WIDTH, FULL_HEIGHT), pygame.SRCALPHA)
         overlay.fill((100, 100, 100, 100))
@@ -259,22 +263,22 @@ class Game:
 
         return retry_rect # Returns the retry button
     
-    '''
-    Shows the game over screen with a retry button option.
-    '''
     def game_over_page(self):
+        """
+        Shows the game over screen with a retry button option.
+        """
         return self.game_ended_page("GAME OVER!")
 
-    '''
-    Shows the win screen with a retry button option.
-    '''
     def game_win_page(self):
+        """
+        Shows the win screen with a retry button option.
+        """
         return self.game_ended_page("YOU WIN!")
     
-    '''
-    It resets the game state to play again if the retry button was selected.
-    '''
     def retry(self):
+        """
+        It resets the game state to play again if the retry button was selected.
+        """
         self.grid = Grid(bomb_amount = self.bomb_amount) # This resets the grid
         self.state = "front-page" # This directs the pplayer back to the front page
         

@@ -13,8 +13,6 @@ import pygame
 from settings import *
 from cell import *
 import random
-#TODO: Fix the way the row and cols are named/called.
-
 
 class Grid:
     def __init__(self, bomb_amount = 10):
@@ -183,7 +181,7 @@ class Grid:
 
         if self.grid_list[x][y].type == "N": # If the cell is numbered, reveal only the cell and return 
             self.grid_list[x][y].revealed = True 
-            return True 
+            return True
         
         self.grid_list[x][y].revealed = True # If the cell is empty, reveal it 
 
