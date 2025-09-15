@@ -34,29 +34,29 @@ class Grid:
     ]
         self.bombs_generated = False
         self.numbers_generated = False
-        self.mine_count = bomb_amount #total mines/bombs = total flags
-        self.flags_placed = 0 #this tracks how many flags are placed
-        self.dug = [] #store values that are dug out 
+        self.mine_count = bomb_amount # Total mines/bombs = total flags
+        self.flags_placed = 0 # This tracks how many flags are placed
+        self.dug = [] # Store values that are dug out 
 
-    def flags_remaining(self): #Compute remaining flags as total mines minus how many flags are on the board
+    def flags_remaining(self): # Compute remaining flags as total mines minus how many flags are on the board
         return self.mine_count - self.flags_placed
     
     def toggle_flag(self, r, c): 
-        cell = self.grid_list[r][c] #Add or remove a flag on cell (r,c) if allowed
-        if cell.revealed: #You can't flag a cell that is already revealed
+        cell = self.grid_list[r][c] # Add or remove a flag on cell (r,c) if allowed
+        if cell.revealed: # You can't flag a cell that is already revealed
             return
-        if cell.flagged: #Unflag - flip the flag off and then decrement the flags_placed
+        if cell.flagged: # Unflag - flip the flag off and then decrement the flags_placed
             cell.flagged = False
-            self.flags_placed = max(0, self.flags_placed - 1) #We use max here to ensure the flags_placed never goes negative due to edge cases
+            self.flags_placed = max(0, self.flags_placed - 1) # We use max here to ensure the flags_placed never goes negative due to edge cases
         else:
-            if self.flags_remaining() > 0: #Only place a new flag if we still have flags available
+            if self.flags_remaining() > 0: # Only place a new flag if we still have flags available
                 cell.flagged = True
                 self.flags_placed += 1
     
     def display_board(self):
-        for row in self.grid_list: #Each row in the grid_list should have a printable format for cells
+        for row in self.grid_list: # Each row in the grid_list should have a printable format for cells
            print(row)
-        print("") #Added a blank line for readability between prints
+        print("") # Added a blank line for readability between prints
 
     def generate_numbers(self):
         '''
@@ -90,7 +90,7 @@ class Grid:
         Returns the total number of bombs in adjacent cells.
         '''
         total_bombs = 0
-        #Checks adjacent cells starting from the top left corner (-1, -1).
+        # Checks adjacent cells starting from the top left corner (-1, -1).
         for x_offset in range(-1, 2):
 
             for y_offset in range(-1, 2):
@@ -103,7 +103,10 @@ class Grid:
         return total_bombs
 
     def draw(self, screen):
-        #Draw each cell onto the off-screen grid surface first(this is to prevent flicker)
+        """
+        Terminal grid output to show all the cells placed on the board
+        """
+        # Draw each cell onto the off-screen grid surface first
         for row in self.grid_list:
             for cell in row:
                 cell.draw(self.grid_surface) #each cell knows how to draw itself
@@ -111,54 +114,66 @@ class Grid:
         screen.blit(self.grid_surface, (PADDING, PADDING)) #Blit the composed grid surface onto the main window at a padded offset
 
     def generate_bombs(self, safe_row, safe_col):
-        planted_bombs = 0
+        """
+        Randomly generates the positions of the bombs based on how many bombs the user wants.
+        Ensure that there isn't a bomb in the user's first click by generating bombs afterwards.
+        """
+        planted_bombs = 0 # Count of bombs placed on board
         while planted_bombs < self.bomb_amount:
-            bomb_x_coord = random.randint(0, ROWS-1)
-            bomb_y_coord = random.randint(0, COLUMNS - 1)
+            bomb_x_coord = random.randint(0, ROWS-1) # Randomly find a row on the board
+            bomb_y_coord = random.randint(0, COLUMNS - 1) # Randomly find a column on the board
 
-            if bomb_x_coord == safe_row and bomb_y_coord == safe_col:
+            if bomb_x_coord == safe_row and bomb_y_coord == safe_col: # Do not place a bomb where the user's first click is
                 continue
 
-            if self.grid_list[bomb_x_coord][bomb_y_coord].type == "E":
+            if self.grid_list[bomb_x_coord][bomb_y_coord].type == "E": # Change the type of the Cell from empty to B
                 self.grid_list[bomb_x_coord][bomb_y_coord].type = "B"
-                self.grid_list[bomb_x_coord][bomb_y_coord].image = bomb_cell_1 if (bomb_x_coord + bomb_y_coord) % 2 == 0 else bomb_cell_2
+                self.grid_list[bomb_x_coord][bomb_y_coord].image = bomb_cell_1 if (bomb_x_coord + bomb_y_coord) % 2 == 0 else bomb_cell_2 # Make the Cell's image one of the two bombs
                 planted_bombs += 1
         
         self.bombs_generated = True
 
     def reveal_bombs(self, clicked_row, clicked_col):
+        """
+        Function called once game over and user clicked on bomb.
+        Reveal all the bombs that were on the grid.
+        """
         for row in self.grid_list:
             for cell in row:
-                if cell.flagged and cell.type != "B":
+                if cell.flagged and cell.type != "B": # If the user flagged a cell that wasn't a bomb, then show that they made a mistake
                     if ((cell.x + cell.y) / CELLSIZE) % 2 == 0:
-                        cell.image = no_bomb_cell_1
+                        cell.image = no_bomb_cell_1 # First type of no bomb image
                     else:
-                        cell.image = no_bomb_cell_2
+                        cell.image = no_bomb_cell_2 # Second type of no bomb image
 
-                    cell.flagged = False
-                    cell.revealed = True
+                    cell.flagged = False # Unflag it to show the cell
+                    cell.revealed = True # Reveal the cell
 
-                elif cell.type == "B":
-                    if cell.x // CELLSIZE == clicked_col and cell.y // CELLSIZE == clicked_row:
+                elif cell.type == "B": # If the cell was a bomb, then reveal it
+                    if cell.x // CELLSIZE == clicked_col and cell.y // CELLSIZE == clicked_row: # If the cell was the bomb the user clicked on, show the exploding bomb image
                         if (clicked_row+clicked_col) % 2 == 0:
-                            self.grid_list[clicked_row][clicked_col].image = exploded_cell_1
+                            self.grid_list[clicked_row][clicked_col].image = exploded_cell_1 # First type of exploding bomb image
                         else:
-                            self.grid_list[clicked_row][clicked_col].image = exploded_cell_2
+                            self.grid_list[clicked_row][clicked_col].image = exploded_cell_2 # Second type of exploding bomb image
 
-                    cell.revealed = True
+                    cell.revealed = True # Reveal the bomb cell
                     
     def check_win(self):
-        count_revealed = 0
+        """
+        After every user click, check if it was a winning move.
+        If all the cells are uncovered that aren't bombs, then they win.
+        """
+        count_revealed = 0 # Count the amount of revealed cells
         for row in self.grid_list:
             for cell in row:
                 if cell.revealed == True:
-                    if cell.type != "B":
+                    if cell.type != "B": # If the cell isn't a bomb and it is revealed, then count it
                         count_revealed += 1
 
-        if count_revealed == (100 - self.bomb_amount):
-            return True
+        if count_revealed == (100 - self.bomb_amount): # The total amount of cells that aren't bombs are (10*10) - amount of bombs. There are 100 cells total
+            return True # If they have uncovered all non-bomb cells, then it was a winning move
         else:
-            return False
+            return False # Otherwise, they haven't won yet
         
     def dig(self, x, y): 
         """
