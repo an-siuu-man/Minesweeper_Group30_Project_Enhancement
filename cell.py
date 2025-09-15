@@ -12,9 +12,9 @@
 from settings import *
 class Cell:
     def __init__(self, x, y, image, type = "E", revealed = False, flagged = False):
-        '''
+        """
         Initalizes cell object.
-        '''
+        """
         self.x = x * CELLSIZE
         self.y = y * CELLSIZE
         self.image = image
@@ -23,9 +23,9 @@ class Cell:
         self.flagged = flagged
 
     def draw(self, grid_surface):
-        '''
+        """
         Draws the cell on the grid surface.
-        '''
+        """
         if self.revealed:
             if not self.flagged:
                 # Draw numbered, bomb, empty, or exploded cell if revealed
@@ -44,5 +44,9 @@ class Cell:
                     grid_surface.blit(unknown_cell_1, (self.x, self.y))
                 else:
                     grid_surface.blit(unknown_cell_2, (self.x, self.y))
+
     def __repr__(self):
+        """
+        Printed representation of the cell for debugging.
+        """
         return self.type

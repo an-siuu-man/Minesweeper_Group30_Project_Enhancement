@@ -57,10 +57,10 @@ class Grid:
         print("") # Added a blank line for readability between prints
 
     def generate_numbers(self):
-        '''
+        """
         Generates numbers for all cells that are not bombs based on adjacent bombs.
         These act as clues for the player.
-        '''
+        """
         for x in range(ROWS):
             for y in range(COLUMNS):
                 if self.grid_list[x][y].type != "B":
@@ -76,17 +76,17 @@ class Grid:
 
     @staticmethod
     def is_inside_grid(x, y):
-        '''
+        """
         Static function that checks if a cell at (x, y) is within the game grid.
         Returns true if cell is inside board, false otherwise.
-        '''
+        """
         return 0 <= x < ROWS and 0 <= y < COLUMNS
 
     def check_adj_cells(self, x, y):
-        '''
+        """
         Checks the adjacent 8 cells around a given cell and calculates the cell number.
         Returns the total number of bombs in adjacent cells.
-        '''
+        """
         total_bombs = 0
         # Checks adjacent cells starting from the top left corner (-1, -1).
         for x_offset in range(-1, 2):
