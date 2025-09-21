@@ -16,3 +16,8 @@ Links:
 - [Sprint Board 2](https://github.com/users/SAJacob7/projects/3)
 
 # Project Deliverables (Documentation):
+- Project System Architecture and Person-Hour Estimates: Contains our diagrams of our code flow, person-hour logs, and explanation of our code.
+- Meeting Logs
+- Sprint Boards + Tickets
+# Project Deliverables (Code):
+- 
