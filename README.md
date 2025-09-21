@@ -20,4 +20,9 @@ Links:
 - Meeting Logs
 - Sprint Boards + Tickets
 # Project Deliverables (Code):
-- 
+- cell.py
+- grid.py
+- game.py
+- settings.py
+- main.py: Use this file to run the code.
+- Assets Folder (Contains all the drawings for the grid board, cells, front page, and more.)
