@@ -12,6 +12,7 @@ We have all our documents, code, and more housed here. <br>
 
 Links:
 - [Team Meeting Logs](https://github.com/SAJacob7/Minesweeper_Group30_Project/wiki/Team-Meeting-Logs)
-- [Sprint Boards] (https://github.com/users/SAJacob7/projects/1 & https://github.com/users/SAJacob7/projects/3)
+- [Sprint Board 1](https://github.com/users/SAJacob7/projects/1)
+- [Sprint Board 2](https://github.com/users/SAJacob7/projects/3)
 
 # Project Deliverables (Documentation):
