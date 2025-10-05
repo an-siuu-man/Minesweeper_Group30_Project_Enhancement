@@ -11,9 +11,11 @@
 """
 
 import pygame
+import random
 from settings import * # Imports global constants and settings
 from cell import * # Import cell-related logic for Minesweeper
 from grid import * # Import grid logic for Minesweeper
+from ai_solver import AISolver # Import AI solver for computer player
 
 class Game:
     def __init__(self):
@@ -36,6 +38,22 @@ class Game:
         self.bomb_min = 10 # Default lower limit for bomb selection
         self.bomb_max = 20 # Default upper limit for bomb selection
 
+        # AI mode attributes
+        self.ai_mode = False # Default: human player
+        self.ai_difficulty = "easy" # Default AI difficulty
+        self.ai_solver = None # AI solver instance
+        self.ai_move_delay = 500 # Delay in milliseconds between AI moves
+        self.last_ai_move_time = 0 # Track time of last AI move
+        
+        # Turn-by-turn mode attributes
+        self.turn_by_turn = True # Default: cooperative turn-by-turn mode
+        self.current_turn = "human" # Whose turn it is: "human" or "ai"
+        self.ai_turn_ready = False # Flag to trigger AI turn
+        
+        # Track last clicked position for game over screen
+        self.last_clicked_row = 0
+        self.last_clicked_col = 0
+
         # This block of code is related to the game's Audio
         pygame.mixer.init()
         pygame.mixer.music.load('Assets/game-music.wav') # Background music
@@ -53,13 +71,13 @@ class Game:
         self.layout.blit(background_img, (0, 0))
         title_font = pygame.font.SysFont("Verdana", 55, bold = True)
         front_page_title = title_font.render(TITLE, True, BLACK)
-        title_pos = front_page_title.get_rect(center = (FULL_WIDTH // 2, FULL_HEIGHT // 3))
+        title_pos = front_page_title.get_rect(center = (FULL_WIDTH // 2, FULL_HEIGHT // 4))
         self.layout.blit(front_page_title, title_pos)
 
         # This is for the display of amount of bombs selected
         bomb_selector_font = pygame.font.SysFont("Verdana",25, bold = True)
         bomb_selector_text = bomb_selector_font.render(f"Bombs: {self.bomb_amount}", True, BLACK)
-        bomb_selector_pos = bomb_selector_text.get_rect(center = (FULL_WIDTH // 2, FULL_HEIGHT // 2))
+        bomb_selector_pos = bomb_selector_text.get_rect(center = (FULL_WIDTH // 2, FULL_HEIGHT // 2.5))
         self.layout.blit(bomb_selector_text, bomb_selector_pos)
 
         # This is the arrows for adding more/less bombs
@@ -69,15 +87,40 @@ class Game:
         pygame.draw.polygon(self.layout, LIGHTGREEN, [(left_arrow.right, left_arrow.top), (left_arrow.right, left_arrow.bottom), (left_arrow.left, left_arrow.centery)])
         pygame.draw.polygon(self.layout, LIGHTGREEN, [(right_arrow.left, right_arrow.top), (right_arrow.left, right_arrow.bottom), (right_arrow.right, right_arrow.centery)])
 
+        # AI Mode Toggle Button
+        ai_toggle_font = pygame.font.SysFont("Verdana", 22, bold = True)
+        ai_mode_text = "AI Mode: ON" if self.ai_mode else "AI Mode: OFF"
+        ai_toggle_text = ai_toggle_font.render(ai_mode_text, True, WHITE)
+        ai_toggle_pos = pygame.Rect(0, 0, 200, 50)
+        ai_toggle_pos.center = (FULL_WIDTH // 2, FULL_HEIGHT // 1.9)
+        button_color = LIGHTGREEN if self.ai_mode else DARKGREEN
+        pygame.draw.rect(self.layout, button_color, ai_toggle_pos, border_radius = 10)
+        self.layout.blit(ai_toggle_text, ai_toggle_text.get_rect(center = ai_toggle_pos.center))
+
+        # AI Difficulty Selector (only shown when AI mode is ON)
+        ai_diff_left = None
+        ai_diff_right = None
+        if self.ai_mode:
+            diff_font = pygame.font.SysFont("Verdana", 20, bold = True)
+            diff_text = diff_font.render(f"Difficulty: {self.ai_difficulty.upper()}", True, BLACK)
+            diff_pos = diff_text.get_rect(center = (FULL_WIDTH // 2, FULL_HEIGHT // 1.65))
+            self.layout.blit(diff_text, diff_pos)
+
+            # Arrows for difficulty selection
+            ai_diff_left = pygame.Rect(diff_pos.left - 40, diff_pos.centery - 12, 25, 25)
+            ai_diff_right = pygame.Rect(diff_pos.right + 15, diff_pos.centery - 12, 25, 25)
+            pygame.draw.polygon(self.layout, LIGHTGREEN, [(ai_diff_left.right, ai_diff_left.top), (ai_diff_left.right, ai_diff_left.bottom), (ai_diff_left.left, ai_diff_left.centery)])
+            pygame.draw.polygon(self.layout, LIGHTGREEN, [(ai_diff_right.left, ai_diff_right.top), (ai_diff_right.left, ai_diff_right.bottom), (ai_diff_right.right, ai_diff_right.centery)])
+
         # Play Game Button
         button_font = pygame.font.SysFont("Verdana", 30, bold = True)
         button_title = button_font.render("Play Game!", True, WHITE)
         button_pos = pygame.Rect(0, 0, 220, 60) # Rectangular button
-        button_pos.center = (FULL_WIDTH // 2, FULL_HEIGHT // 1.5) # Position the button to the center
+        button_pos.center = (FULL_WIDTH // 2, FULL_HEIGHT // 1.4) # Position the button to the center
         pygame.draw.rect(self.layout, LIGHTGREEN, button_pos, border_radius = 15) # Draws the buttom
         self.layout.blit(button_title, button_title.get_rect(center = button_pos.center)) # Draws the text on the button
 
-        return button_pos, left_arrow, right_arrow # Returns the button rectangles for click detection
+        return button_pos, left_arrow, right_arrow, ai_toggle_pos, ai_diff_left, ai_diff_right # Returns the button rectangles for click detection
 
     def draw_hud(self):
         """
@@ -92,7 +135,17 @@ class Game:
 
             # Display the current game status
             hud_font = pygame.font.SysFont("Verdana", 24, bold = True)
-            status_text = hud_font.render("Playing", True, WHITE)
+            if self.ai_mode and self.turn_by_turn:
+                # Show whose turn it is in turn-by-turn mode
+                turn_color = LIGHTGREEN if self.current_turn == "human" else (255, 200, 100)
+                if self.current_turn == "human":
+                    status_text = hud_font.render(f"Your Turn", True, turn_color)
+                else:
+                    status_text = hud_font.render(f"AI Turn ({self.ai_difficulty.upper()})", True, turn_color)
+            elif self.ai_mode:
+                status_text = hud_font.render(f"AI Playing ({self.ai_difficulty.upper()})", True, WHITE)
+            else:
+                status_text = hud_font.render("Playing", True, WHITE)
             text_rect = status_text.get_rect(center = (self.layout.get_width() // 2, PADDING // 2))
             self.layout.blit(status_text, text_rect)
 
@@ -145,17 +198,34 @@ class Game:
 
                     if action.type == pygame.MOUSEBUTTONDOWN: # Detects the mouse button down action
                         mouse_pos = pygame.mouse.get_pos()
-                        button_pos, left_arrow, right_arrow = self.front_page()
+                        button_pos, left_arrow, right_arrow, ai_toggle_pos, ai_diff_left, ai_diff_right = self.front_page()
 
                         # Adjust the bomb amount with arrows
                         if left_arrow.collidepoint(mouse_pos) and (self.bomb_amount > self.bomb_min):
                             self.bomb_amount -= 1
                         elif right_arrow.collidepoint(mouse_pos) and (self.bomb_amount < self.bomb_max):
                             self.bomb_amount += 1
+                        # Toggle AI mode
+                        elif ai_toggle_pos.collidepoint(mouse_pos):
+                            self.ai_mode = not self.ai_mode
+                        # Adjust AI difficulty
+                        elif self.ai_mode and ai_diff_left and ai_diff_left.collidepoint(mouse_pos):
+                            difficulties = ["easy", "medium", "hard"]
+                            current_idx = difficulties.index(self.ai_difficulty)
+                            self.ai_difficulty = difficulties[(current_idx - 1) % 3]
+                        elif self.ai_mode and ai_diff_right and ai_diff_right.collidepoint(mouse_pos):
+                            difficulties = ["easy", "medium", "hard"]
+                            current_idx = difficulties.index(self.ai_difficulty)
+                            self.ai_difficulty = difficulties[(current_idx + 1) % 3]
                         # Start the game when the "Play" button is clicked
                         elif button_pos.collidepoint(mouse_pos):
                             self.grid = Grid(bomb_amount = self.bomb_amount)
                             self.grid.display_board()
+                            if self.ai_mode:
+                                self.ai_solver = AISolver(difficulty=self.ai_difficulty)
+                                self.last_ai_move_time = pygame.time.get_ticks()
+                                self.current_turn = "human"  # Human always starts
+                                self.ai_turn_ready = False
                             self.state = "play"
 
                 # This is the game play logic
@@ -165,7 +235,28 @@ class Game:
                     self.draw_label() # Show labels
                     self.grid.draw(self.layout) # Draw the grid
 
-                    if action.type == pygame.MOUSEBUTTONDOWN:
+                    # Handle AI moves based on mode
+                    if self.ai_mode and self.ai_solver:
+                        if self.turn_by_turn:
+                            # Turn-by-turn mode: AI only moves on its turn
+                            if self.current_turn == "ai" and self.ai_turn_ready:
+                                current_time = pygame.time.get_ticks()
+                                if current_time - self.last_ai_move_time >= self.ai_move_delay:
+                                    self.last_ai_move_time = current_time
+                                    self._make_ai_move()
+                                    self.ai_turn_ready = False
+                                    self.current_turn = "human"  # Switch back to human
+                        else:
+                            # Automatic mode: AI plays continuously
+                            current_time = pygame.time.get_ticks()
+                            if current_time - self.last_ai_move_time >= self.ai_move_delay:
+                                self.last_ai_move_time = current_time
+                                self._make_ai_move()
+                    
+                    # Handle human player input
+                    player_can_move = (not self.ai_mode) or (self.ai_mode and self.turn_by_turn and self.current_turn == "human")
+                    
+                    if action.type == pygame.MOUSEBUTTONDOWN and player_can_move:
                        # Get grid cordinates from mouse position
                         mx, my = pygame.mouse.get_pos()
                         row, col = (my - PADDING) // CELLSIZE, (mx - PADDING) // CELLSIZE
@@ -183,6 +274,11 @@ class Game:
                         if action.button == 3:
                             if hasattr(self.grid, "toggle_flag"):
                                 self.grid.toggle_flag(row, col)
+                            # In turn-by-turn mode, switch to AI turn after flagging
+                            if self.ai_mode and self.turn_by_turn:
+                                self.current_turn = "ai"
+                                self.ai_turn_ready = True
+                                self.last_ai_move_time = pygame.time.get_ticks()
                             # do not continue to uncover on right-click
                             continue
 
@@ -192,11 +288,21 @@ class Game:
                                 # can't uncover a flagged cell
                                 continue
 
+                            # Store the clicked position for game over screen
+                            self.last_clicked_row = row
+                            self.last_clicked_col = col
+
                             if cell.type == "B": # is the clicked cell is the bomb then game over
                                 self.state = "game-over"
                                 self.game_over_sound.play()
                             else: # It is a safe cell, therefore we do the recursive dig function
                                 self.grid.dig(row,col)
+                                
+                                # In turn-by-turn mode, switch to AI turn after human move
+                                if self.ai_mode and self.turn_by_turn:
+                                    self.current_turn = "ai"
+                                    self.ai_turn_ready = True
+                                    self.last_ai_move_time = pygame.time.get_ticks()
                             
                             # Check the win condition
                             if self.grid.check_win(): # If not a bomb, check if this was the winning move.
@@ -205,7 +311,7 @@ class Game:
 
                 # This is the game over logic
                 elif self.state == "game-over":
-                    self.grid.reveal_bombs(row, col) # Show/reveal all of the bombs on the grid
+                    self.grid.reveal_bombs(self.last_clicked_row, self.last_clicked_col) # Show/reveal all of the bombs on the grid
                     self.layout.fill(DARKGREEN)
                     self.draw_hud()
                     self.draw_label()
@@ -282,4 +388,59 @@ class Game:
         """
         self.grid = Grid(bomb_amount = self.bomb_amount) # This resets the grid
         self.state = "front-page" # This directs the pplayer back to the front page
+        self.ai_solver = None # Reset AI solver
+        self.current_turn = "human" # Reset to human's turn
+        self.ai_turn_ready = False # Reset AI turn flag
+        
+    def _make_ai_move(self):
+        """
+        Execute one AI move based on the current game state and AI difficulty.
+        """
+        # If bombs haven't been generated yet, make a random first move
+        if not self.grid.bombs_generated:
+            # Random first click for AI
+            row, col = random.randint(0, ROWS - 1), random.randint(0, COLUMNS - 1)
+            self.grid.generate_bombs(row, col)
+            self.grid.generate_numbers()
+            self.grid.display_board()
+            self.grid.dig(row, col)
+            
+            # Check win condition after first move
+            if self.grid.check_win():
+                self.state = "game-win"
+                self.game_win_sound.play()
+            return
+        
+        # Get the next move from the AI solver
+        move = self.ai_solver.get_move(self.grid)
+        
+        if move is None:
+            # No valid moves available (shouldn't happen in normal gameplay)
+            return
+        
+        action, row, col = move
+        
+        if action == "flag":
+            # Place a flag
+            self.grid.toggle_flag(row, col)
+        elif action == "click":
+            # Click on the cell
+            cell = self.grid.grid_list[row][col]
+            
+            # Store the clicked position for game over screen
+            self.last_clicked_row = row
+            self.last_clicked_col = col
+            
+            if cell.type == "B":
+                # AI clicked on a bomb - game over
+                self.state = "game-over"
+                self.game_over_sound.play()
+            else:
+                # Safe cell - dig it
+                self.grid.dig(row, col)
+                
+                # Check win condition
+                if self.grid.check_win():
+                    self.state = "game-win"
+                    self.game_win_sound.play()
         
