@@ -192,4 +192,80 @@ class Grid:
                     self.dig(row, col) 
                     
         return True
-    
+
+    def reveal_random_safe_cell(self):
+        """
+        Reveals a random safe (non-bomb) cell that hasn't been revealed yet.
+        Returns True if a cell was revealed, False if no safe cells are available.
+
+        Fix: If hints are used before any click (no bombs yet), we first generate bombs
+        and numbers using a random seed cell as guaranteed-safe, then dig that cell.
+        """
+        # If no bombs yet, generate them around a safe seed (first-move safety)
+        if not self.bombs_generated:
+            candidates = [(x, y)
+                        for x in range(ROWS)
+                        for y in range(COLUMNS)
+                        if (not self.grid_list[x][y].revealed and not self.grid_list[x][y].flagged)]
+            if not candidates:
+                return False
+            sx, sy = random.choice(candidates)
+            self.generate_bombs(sx, sy)   # guarantees (sx, sy) is not a bomb
+            self.generate_numbers()
+            self.dig(sx, sy)
+            return True
+
+        # After bombs exist, pick any unrevealed, unflagged non-bomb cell
+        safe_cells = []
+        for x in range(ROWS):
+            for y in range(COLUMNS):
+                cell = self.grid_list[x][y]
+                if not cell.revealed and not cell.flagged and cell.type != "B":
+                    safe_cells.append((x, y))
+
+        if safe_cells:
+            x, y = random.choice(safe_cells)
+            self.dig(x, y)
+            return True
+
+        return False
+
+
+    def reveal_random_bomb_cell(self):
+        """
+        Flags a random bomb cell that hasn't been flagged or revealed yet.
+        Returns True if a bomb was flagged, False if no bombs are available.
+
+        If bombs have not been generated yet (pre-first-click), this will:
+        1) choose a random cell as a safe seed,
+        2) generate bombs avoiding that seed,
+        3) generate numbers,
+        4) then flag a random bomb.
+        """
+        # Ensure bombs exist if hint is used before the first click
+        if not self.bombs_generated:
+            candidates = [(x, y)
+                        for x in range(ROWS)
+                        for y in range(COLUMNS)
+                        if (not self.grid_list[x][y].revealed and not self.grid_list[x][y].flagged)]
+            if not candidates:
+                return False
+            seed_x, seed_y = random.choice(candidates)
+            self.generate_bombs(seed_x, seed_y)
+            self.generate_numbers()
+
+        # Collect unflagged, unrevealed bomb cells
+        bomb_cells = []
+        for x in range(ROWS):
+            for y in range(COLUMNS):
+                cell = self.grid_list[x][y]
+                if not cell.revealed and not cell.flagged and cell.type == "B":
+                    bomb_cells.append((x, y))
+
+        if bomb_cells and self.flags_remaining() > 0:
+            x, y = random.choice(bomb_cells)
+            self.toggle_flag(x, y)
+            return True
+
+        return False
+
