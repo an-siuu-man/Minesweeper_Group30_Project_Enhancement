@@ -45,6 +45,14 @@ class Game:
         self.game_win_sound = pygame.mixer.Sound("Assets/game-win-music.wav") # Add game winning music
         pygame.mixer.init()
 
+        # Hint system
+        self.hints_safe = 3   # number of safe cell hints available
+        self.hints_bomb = 2   # number of bomb hints available
+        self.hint_button_rect = None
+        self.hint_dropdown_open = False
+        self.hint_safe_rect = None
+        self.hint_bomb_rect = None
+
     def front_page(self):
         """
         Display the front page menu where the player can see the game title, select the number of bomns, and start the game.
@@ -95,13 +103,78 @@ class Game:
             status_text = hud_font.render("Playing", True, WHITE)
             text_rect = status_text.get_rect(center = (self.layout.get_width() // 2, PADDING // 2))
             self.layout.blit(status_text, text_rect)
-
+            '''
             #Display the mines left
             hud_font = pygame.font.SysFont("Verdana", 16, bold = True)
             mines_text = hud_font.render(f"Mines Left: {self.grid.flags_remaining()}", True, WHITE)
             text_rect = mines_text.get_rect(center = (self.layout.get_width() - (mines_text.get_width() // 2) - 25, PADDING // 2))
             self.layout.blit(mines_text, text_rect)
+            '''
+            #Display hint button
+            hint_button_font = pygame.font.SysFont("Verdana", 16, bold = True)
+            total_hints = self.hints_safe + self.hints_bomb
+            hint_button_text = hint_button_font.render(f"Hint ({total_hints})", True, WHITE)
+            # create a button rect slightly larger than the text and position it at the same center
+            button_w = hint_button_text.get_width() + 16
+            button_h = hint_button_text.get_height() + 8
+            hint_button_rect = pygame.Rect(0, 0, button_w, button_h)
+            hint_button_rect.center = (self.layout.get_width() - (hint_button_text.get_width() // 2) - 25, PADDING // 2)
+            
+            # Color the button differently based on availability
+            button_color = LIGHTGREEN if total_hints > 0 else (128, 128, 128)  # Gray if no hints left
 
+             # draw background for the button and blit the text centered on it
+            pygame.draw.rect(self.layout, button_color, hint_button_rect, border_radius = 6)
+            self.layout.blit(hint_button_text, hint_button_text.get_rect(center = hint_button_rect.center))
+            # store rect for click detection
+            self.hint_button_rect = hint_button_rect
+    def draw_hint_dropdown(self):
+            """
+            Draws the hint dropdown menu on top of everything else.
+            """
+            if self.hint_dropdown_open and self.hint_button_rect:
+                dropdown_font = pygame.font.SysFont("Verdana", 14, bold = True)
+                
+                # Calculate dropdown dimensions first
+                safe_text = dropdown_font.render(f"Reveal Safe ({self.hints_safe})", True, WHITE)
+                bomb_text = dropdown_font.render(f"Reveal Bomb ({self.hints_bomb})", True, WHITE)
+                
+                # Use the wider text to determine dropdown width
+                max_text_width = max(safe_text.get_width(), bomb_text.get_width())
+                dropdown_width = max_text_width + 12
+                dropdown_height = (safe_text.get_height() + 6) * 2 + 2  # 2 options + gap
+                
+                # Calculate position - check if dropdown would go off screen
+                dropdown_x = self.hint_button_rect.left
+                dropdown_y = self.hint_button_rect.bottom + 2
+                
+                # Adjust x position if dropdown would go off the right edge
+                if dropdown_x + dropdown_width > FULL_WIDTH:
+                    dropdown_x = FULL_WIDTH - dropdown_width - 10  # 10px margin from edge
+                
+                # Ensure dropdown doesn't go off the left edge
+                if dropdown_x < 10:
+                    dropdown_x = 10
+                
+                # Safe cell option
+                safe_h = safe_text.get_height() + 6
+                safe_rect = pygame.Rect(dropdown_x, dropdown_y, dropdown_width, safe_h)
+                safe_color = LIGHTGREEN if self.hints_safe > 0 else (128, 128, 128)
+                pygame.draw.rect(self.layout, safe_color, safe_rect, border_radius = 4)
+                self.layout.blit(safe_text, safe_text.get_rect(center = safe_rect.center))
+                self.hint_safe_rect = safe_rect
+                
+                # Bomb cell option
+                bomb_h = bomb_text.get_height() + 6
+                bomb_rect = pygame.Rect(dropdown_x, safe_rect.bottom + 2, dropdown_width, bomb_h)
+                bomb_color = LIGHTGREEN if self.hints_bomb > 0 else (128, 128, 128)
+                pygame.draw.rect(self.layout, bomb_color, bomb_rect, border_radius = 4)
+                self.layout.blit(bomb_text, bomb_text.get_rect(center = bomb_rect.center))
+                self.hint_bomb_rect = bomb_rect
+            else:
+                self.hint_safe_rect = None
+                self.hint_bomb_rect = None
+          
     def draw_label(self):
         """
         Draws the row and column labels, around the grid. Columns are denoted by letters (A-J) and rows are denoted by numbers (1-10).
@@ -164,10 +237,36 @@ class Game:
                     self.draw_hud() # Show HUD
                     self.draw_label() # Show labels
                     self.grid.draw(self.layout) # Draw the grid
+                    self.draw_hint_dropdown() # Draw hint dropdown if open
 
                     if action.type == pygame.MOUSEBUTTONDOWN:
-                       # Get grid cordinates from mouse position
                         mx, my = pygame.mouse.get_pos()
+                        
+                        # Check hint button click
+                        if self.hint_button_rect and self.hint_button_rect.collidepoint(mx, my):
+                            if self.hints_safe + self.hints_bomb > 0:  # Only open dropdown if hints available
+                                self.hint_dropdown_open = not self.hint_dropdown_open
+                            continue
+                        
+                        # Check hint dropdown clicks
+                        if self.hint_dropdown_open:
+                            if self.hint_safe_rect and self.hint_safe_rect.collidepoint(mx, my):
+                                if self.hints_safe > 0:
+                                    if self.grid.reveal_random_safe_cell():
+                                        self.hints_safe -= 1
+                                    self.hint_dropdown_open = False
+                                continue
+                            elif self.hint_bomb_rect and self.hint_bomb_rect.collidepoint(mx, my):
+                                if self.hints_bomb > 0:
+                                    if self.grid.reveal_random_bomb_cell():
+                                        self.hints_bomb -= 1
+                                    self.hint_dropdown_open = False
+                                continue
+                            else:
+                                # Click outside dropdown, close it
+                                self.hint_dropdown_open = False
+                        
+                        # Get grid coordinates from mouse position
                         row, col = (my - PADDING) // CELLSIZE, (mx - PADDING) // CELLSIZE
                         if my < PADDING or mx < PADDING or row >= ROWS or col >= COLUMNS: # If click is outside the grid, ignore
                             continue
@@ -282,4 +381,7 @@ class Game:
         """
         self.grid = Grid(bomb_amount = self.bomb_amount) # This resets the grid
         self.state = "front-page" # This directs the pplayer back to the front page
-        
+        # Reset hint counts
+        self.hints_safe = 3
+        self.hints_bomb = 2
+        self.hint_dropdown_open = False
